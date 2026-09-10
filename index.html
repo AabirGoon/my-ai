@@ -24,6 +24,10 @@
       --success: #15803d;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       font-family:
         -apple-system,
@@ -32,7 +36,6 @@
         Roboto,
         Arial,
         sans-serif;
-
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -518,7 +521,7 @@
     }
 
     /* =========================
-       CHAT SIDEBAR / DRAWER
+       CHAT SIDEBAR
     ========================= */
 
     .drawer-overlay {
@@ -602,7 +605,6 @@
       display: flex;
       align-items: center;
       gap: 5px;
-
       margin-bottom: 3px;
     }
 
@@ -995,7 +997,6 @@
 
       </div>
 
-
       <div id="chat"></div>
 
     </main>
@@ -1036,7 +1037,7 @@
   <script>
 
     /* =====================================================
-       MY AI CONFIGURATION
+       CONFIGURATION
     ===================================================== */
 
     const BACKEND_URL =
@@ -1050,7 +1051,7 @@
 
 
     /* =====================================================
-       STORAGE KEYS
+       STORAGE
     ===================================================== */
 
     const SESSION_KEY =
@@ -1158,9 +1159,13 @@
        AUTH MESSAGE
     ===================================================== */
 
-    function setAuthMessage(text, type = "") {
+    function setAuthMessage(
+      text,
+      type = ""
+    ) {
 
-      authMessage.textContent = text;
+      authMessage.textContent =
+        text;
 
       authMessage.className =
         "auth-message" +
@@ -1170,7 +1175,7 @@
 
 
     /* =====================================================
-       SUPABASE AUTH REQUEST
+       SUPABASE REQUEST
     ===================================================== */
 
     async function supabaseRequest(
@@ -1196,21 +1201,25 @@
       let data = null;
 
       try {
-        data = await response.json();
+
+        data =
+          await response.json();
+
       } catch {
+
         data = null;
+
       }
 
       if (!response.ok) {
 
-        const message =
+        throw new Error(
           data?.msg ||
           data?.message ||
           data?.error_description ||
           data?.error ||
-          "Authentication request failed.";
-
-        throw new Error(message);
+          "Authentication request failed."
+        );
 
       }
 
@@ -1223,7 +1232,10 @@
        SIGN UP
     ===================================================== */
 
-    async function signUp(email, password) {
+    async function signUp(
+      email,
+      password
+    ) {
 
       return await supabaseRequest(
         "/auth/v1/signup",
@@ -1243,7 +1255,10 @@
        SIGN IN
     ===================================================== */
 
-    async function signIn(email, password) {
+    async function signIn(
+      email,
+      password
+    ) {
 
       return await supabaseRequest(
         "/auth/v1/token?grant_type=password",
@@ -1260,13 +1275,104 @@
 
 
     /* =====================================================
+       SAVE SESSION
+    ===================================================== */
+
+    function saveSession(data) {
+
+      session = {
+        access_token:
+          data.access_token,
+
+        refresh_token:
+          data.refresh_token,
+
+        expires_at:
+          data.expires_at ||
+          (
+            Math.floor(
+              Date.now() / 1000
+            ) +
+            (
+              data.expires_in ||
+              3600
+            )
+          ),
+
+        user:
+          data.user || null
+      };
+
+      localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify(session)
+      );
+
+    }
+
+
+    /* =====================================================
+       GET USER FROM JWT
+    ===================================================== */
+
+    function getUserFromJWT(token) {
+
+      try {
+
+        const parts =
+          token.split(".");
+
+        if (parts.length !== 3) {
+          return null;
+        }
+
+        const normalized =
+          parts[1]
+            .replace(/-/g, "+")
+            .replace(/_/g, "/");
+
+        const padded =
+          normalized +
+          "=".repeat(
+            (
+              4 -
+              normalized.length % 4
+            ) % 4
+          );
+
+        const payload =
+          JSON.parse(
+            atob(padded)
+          );
+
+        if (!payload?.sub) {
+          return null;
+        }
+
+        return {
+          id: payload.sub,
+          email: payload.email || ""
+        };
+
+      } catch {
+
+        return null;
+
+      }
+
+    }
+
+
+    /* =====================================================
        REFRESH SESSION
     ===================================================== */
 
     async function refreshSession() {
 
       const saved =
-        localStorage.getItem(SESSION_KEY);
+        localStorage.getItem(
+          SESSION_KEY
+        );
 
       if (!saved) {
         return null;
@@ -1328,96 +1434,24 @@
         SESSION_KEY
       );
 
+      session = null;
+      currentUser = null;
+
       return null;
 
     }
 
 
     /* =====================================================
-       SAVE SESSION
-    ===================================================== */
-
-    function saveSession(data) {
-
-      session = {
-        access_token:
-          data.access_token,
-
-        refresh_token:
-          data.refresh_token,
-
-        expires_at:
-          data.expires_at ||
-          (
-            Math.floor(Date.now() / 1000) +
-            (data.expires_in || 3600)
-          ),
-
-        user:
-          data.user || null
-      };
-
-      localStorage.setItem(
-        SESSION_KEY,
-        JSON.stringify(session)
-      );
-
-    }
-
-
-    /* =====================================================
-       DECODE JWT USER
-    ===================================================== */
-
-    function getUserFromJWT(token) {
-
-      try {
-
-        const part =
-          token.split(".")[1];
-
-        const normalized =
-          part
-            .replace(/-/g, "+")
-            .replace(/_/g, "/");
-
-        const padded =
-          normalized +
-          "=".repeat(
-            (4 - normalized.length % 4) % 4
-          );
-
-        const payload =
-          JSON.parse(
-            atob(padded)
-          );
-
-        if (!payload?.sub) {
-          return null;
-        }
-
-        return {
-          id: payload.sub,
-          email: payload.email || ""
-        };
-
-      } catch {
-
-        return null;
-
-      }
-
-    }
-
-
-    /* =====================================================
-       VALID SESSION
+       ENSURE VALID SESSION
     ===================================================== */
 
     async function ensureValidSession() {
 
       const saved =
-        localStorage.getItem(SESSION_KEY);
+        localStorage.getItem(
+          SESSION_KEY
+        );
 
       if (!saved) {
         return false;
@@ -1434,6 +1468,8 @@
           SESSION_KEY
         );
 
+        session = null;
+
         return false;
 
       }
@@ -1443,14 +1479,14 @@
       }
 
       const expiresAt =
-        Number(session.expires_at || 0);
+        Number(
+          session.expires_at || 0
+        );
 
       const now =
-        Math.floor(Date.now() / 1000);
-
-      /*
-       * Refresh slightly before expiry.
-       */
+        Math.floor(
+          Date.now() / 1000
+        );
 
       if (
         expiresAt &&
@@ -1505,9 +1541,15 @@
 
       chat.innerHTML = "";
 
-      app.classList.add("hidden");
+      welcome.style.display = "";
 
-      authScreen.classList.remove("hidden");
+      app.classList.add(
+        "hidden"
+      );
+
+      authScreen.classList.remove(
+        "hidden"
+      );
 
       passwordInput.value = "";
 
@@ -1519,15 +1561,20 @@
 
 
     /* =====================================================
-       AUTH MODE UI
+       AUTH MODE
     ===================================================== */
 
     function updateAuthMode() {
 
       if (isSignupMode) {
 
-        signupTab.classList.add("active");
-        loginTab.classList.remove("active");
+        signupTab.classList.add(
+          "active"
+        );
+
+        loginTab.classList.remove(
+          "active"
+        );
 
         authSubmit.textContent =
           "Create account";
@@ -1540,8 +1587,13 @@
 
       } else {
 
-        loginTab.classList.add("active");
-        signupTab.classList.remove("active");
+        loginTab.classList.add(
+          "active"
+        );
+
+        signupTab.classList.remove(
+          "active"
+        );
 
         authSubmit.textContent =
           "Sign in";
@@ -1558,7 +1610,7 @@
 
 
     /* =====================================================
-       AUTH SUBMIT
+       AUTH FORM
     ===================================================== */
 
     authForm.addEventListener(
@@ -1596,11 +1648,6 @@
                 email,
                 password
               );
-
-            /*
-             * Supabase may require email confirmation.
-             * In that case there is no access token yet.
-             */
 
             if (!data?.access_token) {
 
@@ -1645,10 +1692,6 @@
 
           await loadChatList();
 
-          /*
-           * Start with a clean chat view.
-           */
-
           await restoreCurrentChat();
 
         } catch (error) {
@@ -1666,7 +1709,8 @@
 
         } finally {
 
-          authSubmit.disabled = false;
+          authSubmit.disabled =
+            false;
 
         }
 
@@ -1712,9 +1756,13 @@
 
     function showApp() {
 
-      authScreen.classList.add("hidden");
+      authScreen.classList.add(
+        "hidden"
+      );
 
-      app.classList.remove("hidden");
+      app.classList.remove(
+        "hidden"
+      );
 
       accountEmail.textContent =
         currentUser?.email ||
@@ -1732,9 +1780,7 @@
       options = {}
     ) {
 
-      if (
-        !session?.access_token
-      ) {
+      if (!session?.access_token) {
 
         const valid =
           await ensureValidSession();
@@ -1751,15 +1797,15 @@
 
       }
 
-      /*
-       * Refresh if close to expiration.
-       */
-
       const expiresAt =
-        Number(session.expires_at || 0);
+        Number(
+          session.expires_at || 0
+        );
 
       const now =
-        Math.floor(Date.now() / 1000);
+        Math.floor(
+          Date.now() / 1000
+        );
 
       if (
         expiresAt &&
@@ -1792,19 +1838,33 @@
         ...(options.headers || {})
       };
 
-      let response =
-        await fetch(
-          BACKEND_URL + path.replace(/^\/+/, ""),
-          {
-            ...options,
-            headers
-          }
+      const url =
+        BACKEND_URL +
+        path.replace(
+          /^\/+/,
+          ""
         );
 
-      /*
-       * If the access token expired unexpectedly,
-       * refresh once and retry.
-       */
+      let response;
+
+      try {
+
+        response =
+          await fetch(
+            url,
+            {
+              ...options,
+              headers
+            }
+          );
+
+      } catch (error) {
+
+        throw new Error(
+          "Could not connect to the AI server."
+        );
+
+      }
 
       if (response.status === 401) {
 
@@ -1817,15 +1877,24 @@
             "Bearer " +
             session.access_token;
 
-          response =
-            await fetch(
-              BACKEND_URL +
-              path.replace(/^\/+/, ""),
-              {
-                ...options,
-                headers
-              }
+          try {
+
+            response =
+              await fetch(
+                url,
+                {
+                  ...options,
+                  headers
+                }
+              );
+
+          } catch {
+
+            throw new Error(
+              "Could not connect to the AI server."
             );
+
+          }
 
         }
 
@@ -1850,12 +1919,35 @@
 
         throw new Error(
           data?.error ||
+          data?.message ||
           "The server request failed."
         );
 
       }
 
       return data;
+
+    }
+
+
+    /* =====================================================
+       SCROLL TO BOTTOM
+    ===================================================== */
+
+    function scrollToBottom() {
+
+      requestAnimationFrame(
+        function() {
+
+          window.scrollTo({
+            top:
+              document.documentElement
+                .scrollHeight,
+            behavior: "smooth"
+          });
+
+        }
+      );
 
     }
 
@@ -1871,20 +1963,20 @@
     ) {
 
       const message =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
       message.className =
         "message " + type;
 
       const bubble =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
       bubble.className =
         "bubble";
-
-      /*
-       * textContent prevents HTML injection.
-       */
 
       bubble.textContent =
         text || "";
@@ -1893,10 +1985,6 @@
         bubble
       );
 
-      /*
-       * Research sources are rendered separately.
-       */
-
       if (
         type === "ai" &&
         Array.isArray(sources) &&
@@ -1904,13 +1992,17 @@
       ) {
 
         const sourceBox =
-          document.createElement("div");
+          document.createElement(
+            "div"
+          );
 
         sourceBox.className =
           "sources";
 
         const title =
-          document.createElement("div");
+          document.createElement(
+            "div"
+          );
 
         title.className =
           "sources-title";
@@ -1930,13 +2022,17 @@
             }
 
             const item =
-              document.createElement("div");
+              document.createElement(
+                "div"
+              );
 
             item.className =
               "source-item";
 
             const label =
-              document.createElement("span");
+              document.createElement(
+                "span"
+              );
 
             label.textContent =
               "[" +
@@ -1957,7 +2053,9 @@
               );
 
               const link =
-                document.createElement("a");
+                document.createElement(
+                  "a"
+                );
 
               link.href =
                 source.url;
@@ -2002,83 +2100,33 @@
 
 
     /* =====================================================
-       LOAD SAVED CHAT INTO UI
-    ===================================================== */
-
-    function renderSavedChat(savedChat) {
-
-      chat.innerHTML = "";
-
-      welcome.style.display =
-        "none";
-
-      if (
-        !savedChat ||
-        !Array.isArray(
-          savedChat.messages
-        )
-      ) {
-
-        welcome.style.display =
-          "";
-
-        return;
-
-      }
-
-      savedChat.messages.forEach(
-        function(message) {
-
-          if (
-            message.role === "user"
-          ) {
-
-            addMessage(
-              "user",
-              message.content
-            );
-
-          } else if (
-            message.role === "assistant"
-          ) {
-
-            addMessage(
-              "ai",
-              message.content,
-              message.sources
-            );
-
-          }
-
-        }
-      );
-
-      scrollToBottom();
-
-    }
-
-
-    /* =====================================================
        THINKING MESSAGE
     ===================================================== */
 
     function createThinking() {
 
       const message =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
       message.className =
         "message ai";
 
       const bubble =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
       bubble.className =
         "bubble thinking";
 
       bubble.innerHTML = `
         <div class="thinking-line">
-          <span class="thinking-label">Thinking</span>
+          <span class="thinking-label">
+            Thinking
+          </span>
+
           <span class="dots">
             <span></span>
             <span></span>
@@ -2087,7 +2135,6 @@
         </div>
 
         <div
-          id="thinkingStatus"
           class="thinking-status"
         >
           Understanding your request...
@@ -2106,7 +2153,7 @@
 
       const status =
         bubble.querySelector(
-          "#thinkingStatus"
+          ".thinking-status"
         );
 
       let step = 0;
@@ -2160,15 +2207,57 @@
       }
 
       /*
-       * Authentication guard.
+       * Clear the input immediately after
+       * accepting the message.
        */
 
-      const valid =
-        await ensureValidSession();
+      promptInput.value = "";
+
+      promptInput.style.height =
+        "auto";
+
+      /*
+       * Prevent duplicate submissions.
+       */
+
+      if (sendBtn.disabled) {
+        return;
+      }
+
+      sendBtn.disabled = true;
+
+      /*
+       * Make sure the user is authenticated.
+       */
+
+      let valid = false;
+
+      try {
+
+        valid =
+          await ensureValidSession();
+
+      } catch (error) {
+
+        console.error(
+          "Session validation error:",
+          error
+        );
+
+        valid = false;
+
+      }
 
       if (!valid) {
 
+        sendBtn.disabled = false;
+
         logout();
+
+        setAuthMessage(
+          "Please sign in again.",
+          "error"
+        );
 
         return;
 
@@ -2182,14 +2271,6 @@
         prompt
       );
 
-      promptInput.value = "";
-
-      promptInput.style.height =
-        "auto";
-
-      sendBtn.disabled =
-        true;
-
       const thinking =
         createThinking();
 
@@ -2202,7 +2283,9 @@
               method: "POST",
 
               body: JSON.stringify({
-                prompt,
+                prompt:
+                  prompt,
+
                 chatId:
                   currentChatId
               })
@@ -2210,6 +2293,7 @@
           );
 
         if (
+          thinking &&
           thinking._thinkingInterval
         ) {
 
@@ -2219,7 +2303,9 @@
 
         }
 
-        thinking.remove();
+        if (thinking) {
+          thinking.remove();
+        }
 
         if (
           !data ||
@@ -2285,10 +2371,6 @@
 
         }
 
-        /*
-         * Worker creates/updates the chat automatically.
-         */
-
         if (data.chatId) {
 
           currentChatId =
@@ -2317,6 +2399,7 @@
         );
 
         if (
+          thinking &&
           thinking._thinkingInterval
         ) {
 
@@ -2326,13 +2409,15 @@
 
         }
 
-        thinking.remove();
+        if (thinking) {
+          thinking.remove();
+        }
 
         addMessage(
           "ai",
           "Sorry, something went wrong.\n\n" +
           (
-            error.message ||
+            error?.message ||
             "Please try again."
           )
         );
@@ -2350,7 +2435,68 @@
 
 
     /* =====================================================
-       LIST SAVED CHATS
+       RENDER SAVED CHAT
+    ===================================================== */
+
+    function renderSavedChat(
+      savedChat
+    ) {
+
+      chat.innerHTML = "";
+
+      welcome.style.display =
+        "none";
+
+      if (
+        !savedChat ||
+        !Array.isArray(
+          savedChat.messages
+        )
+      ) {
+
+        welcome.style.display =
+          "";
+
+        return;
+
+      }
+
+      savedChat.messages.forEach(
+        function(message) {
+
+          if (
+            message.role ===
+            "user"
+          ) {
+
+            addMessage(
+              "user",
+              message.content
+            );
+
+          } else if (
+            message.role ===
+            "assistant"
+          ) {
+
+            addMessage(
+              "ai",
+              message.content,
+              message.sources
+            );
+
+          }
+
+        }
+      );
+
+      scrollToBottom();
+
+    }
+
+
+    /* =====================================================
+       LOAD SAVED CHAT LIST
     ===================================================== */
 
     async function loadChatList() {
@@ -2366,7 +2512,7 @@
           );
 
         renderChatList(
-          data.chats || []
+          data?.chats || []
         );
 
       } catch (error) {
@@ -2387,7 +2533,9 @@
        RENDER CHAT LIST
     ===================================================== */
 
-    function renderChatList(chats) {
+    function renderChatList(
+      chats
+    ) {
 
       chatList.innerHTML = "";
 
@@ -2397,7 +2545,9 @@
       ) {
 
         const empty =
-          document.createElement("div");
+          document.createElement(
+            "div"
+          );
 
         empty.className =
           "empty-chats";
@@ -2417,13 +2567,17 @@
         function(item) {
 
           const row =
-            document.createElement("div");
+            document.createElement(
+              "div"
+            );
 
           row.className =
             "chat-row";
 
           const open =
-            document.createElement("button");
+            document.createElement(
+              "button"
+            );
 
           open.className =
             "chat-open";
@@ -2451,7 +2605,9 @@
           );
 
           const del =
-            document.createElement("button");
+            document.createElement(
+              "button"
+            );
 
           del.className =
             "chat-delete";
@@ -2502,7 +2658,9 @@
        LOAD ONE CHAT
     ===================================================== */
 
-    async function loadChat(chatId) {
+    async function loadChat(
+      chatId
+    ) {
 
       if (!chatId) {
         return;
@@ -2513,7 +2671,9 @@
         const data =
           await backendRequest(
             "/api/chats/" +
-            encodeURIComponent(chatId),
+            encodeURIComponent(
+              chatId
+            ),
             {
               method: "GET"
             }
@@ -2587,8 +2747,7 @@
 
       } catch {
 
-        currentChatId =
-          null;
+        currentChatId = null;
 
         localStorage.removeItem(
           CURRENT_CHAT_KEY
@@ -2608,7 +2767,9 @@
        DELETE CHAT
     ===================================================== */
 
-    async function deleteChat(chatId) {
+    async function deleteChat(
+      chatId
+    ) {
 
       if (!chatId) {
         return;
@@ -2628,15 +2789,15 @@
         const data =
           await backendRequest(
             "/api/chats/" +
-            encodeURIComponent(chatId),
+            encodeURIComponent(
+              chatId
+            ),
             {
               method: "DELETE"
             }
           );
 
-        if (
-          !data?.success
-        ) {
+        if (!data?.success) {
 
           throw new Error(
             data?.error ||
@@ -2650,8 +2811,7 @@
           chatId
         ) {
 
-          currentChatId =
-            null;
+          currentChatId = null;
 
           localStorage.removeItem(
             CURRENT_CHAT_KEY
@@ -2674,7 +2834,7 @@
         );
 
         alert(
-          error.message ||
+          error?.message ||
           "Could not delete this chat."
         );
 
@@ -2691,10 +2851,6 @@
 
       try {
 
-        /*
-         * The Worker supports creating an empty chat.
-         */
-
         const data =
           await backendRequest(
             "/api/chats",
@@ -2702,7 +2858,8 @@
               method: "POST",
 
               body: JSON.stringify({
-                title: "New Chat"
+                title:
+                  "New Chat"
               })
             }
           );
@@ -2746,13 +2903,7 @@
           error
         );
 
-        /*
-         * Even if creation fails, clear the UI so
-         * the user can continue naturally.
-         */
-
-        currentChatId =
-          null;
+        currentChatId = null;
 
         localStorage.removeItem(
           CURRENT_CHAT_KEY
@@ -2989,6 +3140,10 @@
 
     }
 
+
+    /* =====================================================
+       START
+    ===================================================== */
 
     initialize();
 
