@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>My AI — Think. Research. Create.</title>
+  <title>My AI</title>
 
   <style>
     * {
@@ -13,12 +13,41 @@
       padding: 0;
     }
 
+    :root {
+      --bg: #f7f7f8;
+      --white: #ffffff;
+      --text: #202123;
+      --muted: #707070;
+      --border: #e5e5e5;
+      --dark: #202123;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f7f7f5;
-      color: #171717;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
     }
+
+    button,
+    textarea {
+      font-family: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* =========================
+       APP
+    ========================= */
 
     .app {
       min-height: 100vh;
@@ -26,249 +55,386 @@
       flex-direction: column;
     }
 
-    /* TOP BAR */
+    /* =========================
+       HEADER
+    ========================= */
 
     header {
-      height: 68px;
+      height: 64px;
+
+      background: rgba(255,255,255,0.96);
+
+      border-bottom: 1px solid var(--border);
+
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 22px;
-      border-bottom: 1px solid #e5e5e5;
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(12px);
+
+      padding: 0 20px;
+
       position: sticky;
       top: 0;
-      z-index: 10;
+
+      z-index: 20;
+
+      backdrop-filter: blur(12px);
     }
 
     .logo {
-      font-size: 20px;
-      font-weight: 750;
+      font-size: 21px;
+      font-weight: 700;
       letter-spacing: -0.5px;
     }
 
-    .logo span {
+    .online {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+
+      font-size: 12px;
       color: #666;
-      font-weight: 500;
     }
 
-    .login-btn {
-      border: 1px solid #dedede;
-      background: white;
-      padding: 10px 17px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
+    .online-dot {
+      width: 8px;
+      height: 8px;
+
+      border-radius: 50%;
+
+      background: #22c55e;
     }
 
-    /* MAIN */
+    /* =========================
+       MAIN
+    ========================= */
 
     main {
       width: 100%;
-      max-width: 850px;
-      margin: auto;
-      padding: 55px 20px 80px;
+      max-width: 900px;
+
+      margin: 0 auto;
+
+      flex: 1;
+
+      padding:
+        55px
+        20px
+        150px;
     }
 
-    .hero {
+    .welcome {
       text-align: center;
-      margin-bottom: 35px;
+
+      margin-bottom: 40px;
     }
 
-    .badge {
-      display: inline-block;
-      padding: 7px 12px;
-      border-radius: 30px;
-      background: #eeeeeb;
-      color: #555;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 18px;
+    .welcome h1 {
+      font-size: clamp(31px, 7vw, 48px);
+
+      font-weight: 700;
+
+      letter-spacing: -1.8px;
+
+      margin-bottom: 13px;
     }
 
-    h1 {
-      font-size: clamp(34px, 8vw, 58px);
-      line-height: 1.05;
-      letter-spacing: -2.5px;
-      margin-bottom: 15px;
-    }
+    .welcome p {
+      color: var(--muted);
 
-    .subtitle {
-      color: #666;
-      font-size: 16px;
+      font-size: 15px;
+
       line-height: 1.6;
-      max-width: 600px;
-      margin: auto;
     }
 
-    /* INPUT */
+    /* =========================
+       CHAT
+    ========================= */
 
-    .prompt-box {
+    #chat {
+      display: flex;
+      flex-direction: column;
+
+      gap: 20px;
+    }
+
+    .message {
+      width: 100%;
+
+      display: flex;
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .message.ai {
+      justify-content: flex-start;
+    }
+
+    .bubble {
+      max-width: 82%;
+
+      padding: 14px 17px;
+
+      border-radius: 18px;
+
+      font-size: 15px;
+
+      line-height: 1.65;
+
+      white-space: pre-wrap;
+
+      overflow-wrap: anywhere;
+    }
+
+    .user .bubble {
+      background: var(--dark);
+
+      color: white;
+
+      border-bottom-right-radius: 5px;
+    }
+
+    .ai .bubble {
       background: white;
-      border: 1px solid #dedede;
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: 0 10px 35px rgba(0,0,0,0.06);
+
+      border: 1px solid var(--border);
+
+      border-bottom-left-radius: 5px;
+    }
+
+    /* =========================
+       THINKING
+    ========================= */
+
+    .thinking {
+      display: flex;
+
+      align-items: center;
+
+      gap: 9px;
+
+      color: #777;
+
+      font-size: 14px;
+    }
+
+    .dots {
+      display: flex;
+
+      gap: 4px;
+    }
+
+    .dots span {
+      width: 5px;
+      height: 5px;
+
+      border-radius: 50%;
+
+      background: #777;
+
+      animation: blink 1.2s infinite;
+    }
+
+    .dots span:nth-child(2) {
+      animation-delay: .2s;
+    }
+
+    .dots span:nth-child(3) {
+      animation-delay: .4s;
+    }
+
+    @keyframes blink {
+      0%,
+      80%,
+      100% {
+        opacity: .25;
+      }
+
+      40% {
+        opacity: 1;
+      }
+    }
+
+    /* =========================
+       INPUT AREA
+    ========================= */
+
+    .input-area {
+      position: fixed;
+
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      z-index: 30;
+
+      background: rgba(247,247,248,.96);
+
+      border-top: 1px solid var(--border);
+
+      padding:
+        13px
+        20px
+        17px;
+
+      backdrop-filter: blur(12px);
+    }
+
+    .input-box {
+      width: 100%;
+      max-width: 900px;
+
+      margin: 0 auto;
+
+      display: flex;
+
+      align-items: flex-end;
+
+      gap: 9px;
+
+      background: white;
+
+      border: 1px solid #d8d8d8;
+
+      border-radius: 18px;
+
+      padding:
+        7px
+        7px
+        7px
+        15px;
+
+      box-shadow:
+        0 5px 25px rgba(0,0,0,.06);
     }
 
     textarea {
-      width: 100%;
-      min-height: 125px;
+      flex: 1;
+
+      min-height: 45px;
+      max-height: 140px;
+
+      resize: none;
+
       border: none;
       outline: none;
-      resize: vertical;
-      font-family: inherit;
-      font-size: 17px;
-      line-height: 1.6;
-      color: #171717;
+
+      background: transparent;
+
+      color: var(--text);
+
+      font-size: 15px;
+
+      line-height: 1.5;
+
+      padding:
+        10px
+        0;
     }
 
     textarea::placeholder {
       color: #999;
     }
 
-    .prompt-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 12px;
-    }
+    #sendBtn {
+      width: 45px;
+      height: 45px;
 
-    .research-status {
-      color: #777;
-      font-size: 13px;
-    }
+      flex-shrink: 0;
 
-    .research-status strong {
-      color: #171717;
-    }
-
-    .research-btn {
       border: none;
-      background: #171717;
+
+      border-radius: 14px;
+
+      background: var(--dark);
+
       color: white;
-      padding: 13px 21px;
-      border-radius: 13px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.15s ease;
-    }
 
-    .research-btn:active {
-      transform: scale(0.97);
-    }
+      font-size: 20px;
 
-    /* EXAMPLES */
-
-    .examples {
-      margin-top: 30px;
-    }
-
-    .examples-title {
-      font-size: 13px;
-      color: #777;
-      margin-bottom: 12px;
-      text-align: center;
-    }
-
-    .example-list {
       display: flex;
-      flex-wrap: wrap;
+
+      align-items: center;
       justify-content: center;
-      gap: 9px;
+
+      transition:
+        transform .15s,
+        opacity .15s;
     }
 
-    .example {
-      background: white;
-      border: 1px solid #e3e3e3;
-      border-radius: 30px;
-      padding: 9px 13px;
-      color: #555;
-      font-size: 13px;
-      cursor: pointer;
+    #sendBtn:hover {
+      opacity: .88;
     }
 
-    .example:hover {
-      border-color: #aaa;
+    #sendBtn:active {
+      transform: scale(.94);
     }
 
-    /* FEATURES */
+    #sendBtn:disabled {
+      opacity: .45;
 
-    .features {
-      margin-top: 65px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
+      cursor: not-allowed;
     }
 
-    .feature {
-      background: white;
-      border: 1px solid #e7e7e7;
-      border-radius: 18px;
-      padding: 20px;
-    }
+    .hint {
+      width: 100%;
+      max-width: 900px;
 
-    .feature-icon {
-      font-size: 23px;
-      margin-bottom: 13px;
-    }
+      margin:
+        7px
+        auto
+        0;
 
-    .feature h3 {
-      font-size: 15px;
-      margin-bottom: 7px;
-    }
-
-    .feature p {
-      font-size: 13px;
-      color: #777;
-      line-height: 1.5;
-    }
-
-    /* FOOTER */
-
-    footer {
       text-align: center;
+
       color: #999;
-      font-size: 12px;
-      padding: 25px;
-      margin-top: auto;
+
+      font-size: 10px;
     }
 
-    /* MOBILE */
+    /* =========================
+       MOBILE
+    ========================= */
 
-    @media (max-width: 650px) {
+    @media (max-width: 600px) {
 
       header {
         padding: 0 15px;
       }
 
       main {
-        padding-top: 38px;
+        padding:
+          38px
+          13px
+          135px;
       }
 
-      h1 {
-        letter-spacing: -1.7px;
+      .welcome {
+        margin-bottom: 32px;
       }
 
-      .prompt-bottom {
-        flex-direction: column;
-        align-items: stretch;
+      .welcome h1 {
+        font-size: 31px;
       }
 
-      .research-status {
-        text-align: center;
+      .welcome p {
+        font-size: 14px;
       }
 
-      .research-btn {
-        width: 100%;
+      .bubble {
+        max-width: 90%;
       }
 
-      .features {
-        grid-template-columns: 1fr;
+      .input-area {
+        padding:
+          9px
+          9px
+          13px;
+      }
+
+      .input-box {
+        border-radius: 17px;
       }
     }
   </style>
@@ -278,158 +444,479 @@
 
   <div class="app">
 
+    <!-- HEADER -->
+
     <header>
+
       <div class="logo">
-        My AI <span>· research & create</span>
+        My AI
       </div>
 
-      <button class="login-btn">
-        Sign in
-      </button>
+      <div class="online">
+        <span class="online-dot"></span>
+        AI online
+      </div>
+
     </header>
 
 
+    <!-- MAIN -->
+
     <main>
 
-      <section class="hero">
-
-        <div class="badge">
-          Free AI Research Assistant
-        </div>
+      <div
+        class="welcome"
+        id="welcome"
+      >
 
         <h1>
-          What are you<br>
-          trying to do?
+          What can I help you with?
         </h1>
 
-        <p class="subtitle">
-          Just tell me what you need.
-          I'll figure out what matters, research it,
-          and help you get it done.
+        <p>
+          Ask anything. Learn, write, think, plan and explore.
         </p>
 
-      </section>
+      </div>
 
 
-      <section class="prompt-box">
-
-        <textarea id="prompt"
-          placeholder="Type anything...&#10;&#10;For example: I want to start a YouTube channel about Indian history."></textarea>
-
-        <div class="prompt-bottom">
-
-          <div class="research-status">
-            Deep Research:
-            <strong>5 / 5</strong> remaining
-          </div>
-
-          <button class="research-btn" onclick="startResearch()">
-            ✨ Do it for me
-          </button>
-
-        </div>
-
-      </section>
-
-
-      <section class="examples">
-
-        <div class="examples-title">
-          Try something like
-        </div>
-
-        <div class="example-list">
-
-          <button class="example"
-            onclick="useExample('Research the history of the internet and explain how it changed the world.')">
-            🔎 Research something
-          </button>
-
-          <button class="example"
-            onclick="useExample('Help me create a mystery story set in rural Bengal.')">
-            ✍️ Write a story
-          </button>
-
-          <button class="example"
-            onclick="useExample('Teach me quantum mechanics from the beginning.')">
-            🧠 Learn something
-          </button>
-
-          <button class="example"
-            onclick="useExample('Help me plan a YouTube channel from zero.')">
-            🚀 Make a plan
-          </button>
-
-        </div>
-
-      </section>
-
-
-      <section class="features">
-
-        <div class="feature">
-          <div class="feature-icon">🔎</div>
-          <h3>Deep Research</h3>
-          <p>
-            Search, compare and organize information
-            instead of giving you a shallow answer.
-          </p>
-        </div>
-
-        <div class="feature">
-          <div class="feature-icon">🧠</div>
-          <h3>Understands Your Goal</h3>
-          <p>
-            Give a short prompt. The system works out
-            what you actually need.
-          </p>
-        </div>
-
-        <div class="feature">
-          <div class="feature-icon">✨</div>
-          <h3>Create Anything</h3>
-          <p>
-            Research, stories, writing, learning,
-            planning and much more.
-          </p>
-        </div>
-
-      </section>
+      <div id="chat"></div>
 
     </main>
 
 
-    <footer>
-      Built to make complicated things feel simple.
-    </footer>
+    <!-- INPUT -->
+
+    <div class="input-area">
+
+      <div class="input-box">
+
+        <textarea
+          id="prompt"
+          rows="1"
+          placeholder="Ask anything..."
+          autocomplete="off"
+        ></textarea>
+
+        <button
+          id="sendBtn"
+          aria-label="Send message"
+          type="button"
+        >
+          ↑
+        </button>
+
+      </div>
+
+      <div class="hint">
+        My AI can make mistakes. Check important information.
+      </div>
+
+    </div>
 
   </div>
 
 
   <script>
 
-    function useExample(text) {
-      document.getElementById("prompt").value = text;
-      document.getElementById("prompt").focus();
+    /* =====================================================
+       MY AI BACKEND
+       ===================================================== */
+
+    const BACKEND_URL =
+      "https://my-ai-backend.techaabir.workers.dev/";
+
+
+    /* =====================================================
+       ELEMENTS
+       ===================================================== */
+
+    const promptInput =
+      document.getElementById("prompt");
+
+    const sendBtn =
+      document.getElementById("sendBtn");
+
+    const chat =
+      document.getElementById("chat");
+
+    const welcome =
+      document.getElementById("welcome");
+
+
+    /* =====================================================
+       ADD MESSAGE
+       ===================================================== */
+
+    function addMessage(type, text) {
+
+      const message =
+        document.createElement("div");
+
+      message.className =
+        "message " + type;
+
+
+      const bubble =
+        document.createElement("div");
+
+      bubble.className =
+        "bubble";
+
+
+      bubble.textContent =
+        text;
+
+
+      message.appendChild(bubble);
+
+      chat.appendChild(message);
+
+
+      scrollToBottom();
+
+
+      return bubble;
     }
 
 
-    function startResearch() {
+    /* =====================================================
+       SCROLL
+       ===================================================== */
 
-      const prompt = document.getElementById("prompt").value.trim();
+    function scrollToBottom() {
+
+      setTimeout(() => {
+
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: "smooth"
+        });
+
+      }, 50);
+
+    }
+
+
+    /* =====================================================
+       THINKING MESSAGE
+       ===================================================== */
+
+    function createThinking() {
+
+      const message =
+        document.createElement("div");
+
+      message.className =
+        "message ai";
+
+
+      const bubble =
+        document.createElement("div");
+
+      bubble.className =
+        "bubble thinking";
+
+
+      bubble.innerHTML = `
+        <span>Thinking</span>
+
+        <span class="dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      `;
+
+
+      message.appendChild(bubble);
+
+      chat.appendChild(message);
+
+
+      scrollToBottom();
+
+
+      return message;
+    }
+
+
+    /* =====================================================
+       SEND MESSAGE
+       ===================================================== */
+
+    async function sendMessage() {
+
+      const prompt =
+        promptInput.value.trim();
+
 
       if (!prompt) {
-        alert("Tell me what you want to do first.");
         return;
       }
 
-      alert(
-        "Your AI brain isn't connected yet.\n\n" +
-        "That's the next stage we will build."
+
+      /* Hide welcome screen */
+
+      welcome.style.display =
+        "none";
+
+
+      /* Show user message */
+
+      addMessage(
+        "user",
+        prompt
       );
+
+
+      /* Clear input */
+
+      promptInput.value = "";
+
+      promptInput.style.height =
+        "auto";
+
+
+      /* Disable send */
+
+      sendBtn.disabled =
+        true;
+
+
+      /* Thinking */
+
+      const thinking =
+        createThinking();
+
+
+      try {
+
+        const response =
+          await fetch(
+            BACKEND_URL,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body: JSON.stringify({
+                prompt: prompt
+              })
+            }
+          );
+
+
+        let data;
+
+
+        try {
+
+          data =
+            await response.json();
+
+        } catch {
+
+          throw new Error(
+            "The AI server returned an invalid response."
+          );
+
+        }
+
+
+        /* Remove thinking */
+
+        thinking.remove();
+
+
+        /* Backend error */
+
+        if (
+          !response.ok ||
+          !data.success
+        ) {
+
+          const error =
+            data &&
+            data.error
+              ? data.error
+              : "Something went wrong.";
+
+
+          addMessage(
+            "ai",
+            "Sorry, something went wrong.\n\n" +
+            error
+          );
+
+
+          return;
+        }
+
+
+        /* =================================================
+           EXTRACT WORKERS AI RESPONSE
+           ================================================= */
+
+        let answer = "";
+
+
+        if (
+          data.result &&
+          typeof data.result === "object"
+        ) {
+
+          if (
+            typeof data.result.response ===
+            "string"
+          ) {
+
+            answer =
+              data.result.response;
+
+          }
+
+          else if (
+            typeof data.result.result ===
+            "string"
+          ) {
+
+            answer =
+              data.result.result;
+
+          }
+
+          else {
+
+            answer =
+              JSON.stringify(
+                data.result,
+                null,
+                2
+              );
+
+          }
+
+        }
+
+        else if (
+          typeof data.result ===
+          "string"
+        ) {
+
+          answer =
+            data.result;
+
+        }
+
+
+        if (!answer) {
+
+          answer =
+            "The AI responded, but no readable answer was returned.";
+
+        }
+
+
+        /* Show AI answer */
+
+        addMessage(
+          "ai",
+          answer
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "My AI error:",
+          error
+        );
+
+
+        thinking.remove();
+
+
+        addMessage(
+          "ai",
+          "I couldn't connect to the AI server.\n\n" +
+          "Please try again."
+        );
+
+      }
+
+
+      finally {
+
+        sendBtn.disabled =
+          false;
+
+        promptInput.focus();
+
+      }
+
     }
+
+
+    /* =====================================================
+       SEND BUTTON
+       ===================================================== */
+
+    sendBtn.addEventListener(
+      "click",
+      sendMessage
+    );
+
+
+    /* =====================================================
+       ENTER TO SEND
+       SHIFT + ENTER = NEW LINE
+       ===================================================== */
+
+    promptInput.addEventListener(
+      "keydown",
+      function(event) {
+
+        if (
+          event.key === "Enter" &&
+          !event.shiftKey
+        ) {
+
+          event.preventDefault();
+
+          sendMessage();
+
+        }
+
+      }
+    );
+
+
+    /* =====================================================
+       AUTO RESIZE
+       ===================================================== */
+
+    promptInput.addEventListener(
+      "input",
+      function() {
+
+        this.style.height =
+          "auto";
+
+
+        this.style.height =
+          Math.min(
+            this.scrollHeight,
+            140
+          ) + "px";
+
+      }
+    );
 
   </script>
 
 </body>
-</html>
+  </html>
