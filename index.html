@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>My AI — Think. Research. Create.</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f7f5;
+      color: #171717;
+      min-height: 100vh;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP BAR */
+
+    header {
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+      border-bottom: 1px solid #e5e5e5;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 750;
+      letter-spacing: -0.5px;
+    }
+
+    .logo span {
+      color: #666;
+      font-weight: 500;
+    }
+
+    .login-btn {
+      border: 1px solid #dedede;
+      background: white;
+      padding: 10px 17px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* MAIN */
+
+    main {
+      width: 100%;
+      max-width: 850px;
+      margin: auto;
+      padding: 55px 20px 80px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 7px 12px;
+      border-radius: 30px;
+      background: #eeeeeb;
+      color: #555;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: clamp(34px, 8vw, 58px);
+      line-height: 1.05;
+      letter-spacing: -2.5px;
+      margin-bottom: 15px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 16px;
+      line-height: 1.6;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    /* INPUT */
+
+    .prompt-box {
+      background: white;
+      border: 1px solid #dedede;
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.06);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 125px;
+      border: none;
+      outline: none;
+      resize: vertical;
+      font-family: inherit;
+      font-size: 17px;
+      line-height: 1.6;
+      color: #171717;
+    }
+
+    textarea::placeholder {
+      color: #999;
+    }
+
+    .prompt-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .research-status {
+      color: #777;
+      font-size: 13px;
+    }
+
+    .research-status strong {
+      color: #171717;
+    }
+
+    .research-btn {
+      border: none;
+      background: #171717;
+      color: white;
+      padding: 13px 21px;
+      border-radius: 13px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .research-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* EXAMPLES */
+
+    .examples {
+      margin-top: 30px;
+    }
+
+    .examples-title {
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .example-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 9px;
+    }
+
+    .example {
+      background: white;
+      border: 1px solid #e3e3e3;
+      border-radius: 30px;
+      padding: 9px 13px;
+      color: #555;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .example:hover {
+      border-color: #aaa;
+    }
+
+    /* FEATURES */
+
+    .features {
+      margin-top: 65px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .feature {
+      background: white;
+      border: 1px solid #e7e7e7;
+      border-radius: 18px;
+      padding: 20px;
+    }
+
+    .feature-icon {
+      font-size: 23px;
+      margin-bottom: 13px;
+    }
+
+    .feature h3 {
+      font-size: 15px;
+      margin-bottom: 7px;
+    }
+
+    .feature p {
+      font-size: 13px;
+      color: #777;
+      line-height: 1.5;
+    }
+
+    /* FOOTER */
+
+    footer {
+      text-align: center;
+      color: #999;
+      font-size: 12px;
+      padding: 25px;
+      margin-top: auto;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 650px) {
+
+      header {
+        padding: 0 15px;
+      }
+
+      main {
+        padding-top: 38px;
+      }
+
+      h1 {
+        letter-spacing: -1.7px;
+      }
+
+      .prompt-bottom {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .research-status {
+        text-align: center;
+      }
+
+      .research-btn {
+        width: 100%;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <header>
+      <div class="logo">
+        My AI <span>· research & create</span>
+      </div>
+
+      <button class="login-btn">
+        Sign in
+      </button>
+    </header>
+
+
+    <main>
+
+      <section class="hero">
+
+        <div class="badge">
+          Free AI Research Assistant
+        </div>
+
+        <h1>
+          What are you<br>
+          trying to do?
+        </h1>
+
+        <p class="subtitle">
+          Just tell me what you need.
+          I'll figure out what matters, research it,
+          and help you get it done.
+        </p>
+
+      </section>
+
+
+      <section class="prompt-box">
+
+        <textarea id="prompt"
+          placeholder="Type anything...&#10;&#10;For example: I want to start a YouTube channel about Indian history."></textarea>
+
+        <div class="prompt-bottom">
+
+          <div class="research-status">
+            Deep Research:
+            <strong>5 / 5</strong> remaining
+          </div>
+
+          <button class="research-btn" onclick="startResearch()">
+            ✨ Do it for me
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <section class="examples">
+
+        <div class="examples-title">
+          Try something like
+        </div>
+
+        <div class="example-list">
+
+          <button class="example"
+            onclick="useExample('Research the history of the internet and explain how it changed the world.')">
+            🔎 Research something
+          </button>
+
+          <button class="example"
+            onclick="useExample('Help me create a mystery story set in rural Bengal.')">
+            ✍️ Write a story
+          </button>
+
+          <button class="example"
+            onclick="useExample('Teach me quantum mechanics from the beginning.')">
+            🧠 Learn something
+          </button>
+
+          <button class="example"
+            onclick="useExample('Help me plan a YouTube channel from zero.')">
+            🚀 Make a plan
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <section class="features">
+
+        <div class="feature">
+          <div class="feature-icon">🔎</div>
+          <h3>Deep Research</h3>
+          <p>
+            Search, compare and organize information
+            instead of giving you a shallow answer.
+          </p>
+        </div>
+
+        <div class="feature">
+          <div class="feature-icon">🧠</div>
+          <h3>Understands Your Goal</h3>
+          <p>
+            Give a short prompt. The system works out
+            what you actually need.
+          </p>
+        </div>
+
+        <div class="feature">
+          <div class="feature-icon">✨</div>
+          <h3>Create Anything</h3>
+          <p>
+            Research, stories, writing, learning,
+            planning and much more.
+          </p>
+        </div>
+
+      </section>
+
+    </main>
+
+
+    <footer>
+      Built to make complicated things feel simple.
+    </footer>
+
+  </div>
+
+
+  <script>
+
+    function useExample(text) {
+      document.getElementById("prompt").value = text;
+      document.getElementById("prompt").focus();
+    }
+
+
+    function startResearch() {
+
+      const prompt = document.getElementById("prompt").value.trim();
+
+      if (!prompt) {
+        alert("Tell me what you want to do first.");
+        return;
+      }
+
+      alert(
+        "Your AI brain isn't connected yet.\n\n" +
+        "That's the next stage we will build."
+      );
+    }
+
+  </script>
+
+</body>
+</html>
