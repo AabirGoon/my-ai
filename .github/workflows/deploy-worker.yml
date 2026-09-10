@@ -1,14 +1,6 @@
 name: Deploy My AI Backend
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "worker.js"
-      - "wrangler.toml"
-      - ".github/workflows/deploy-worker.yml"
-
   workflow_dispatch:
 
 jobs:
@@ -16,19 +8,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install Wrangler
-        run: npm install --global wrangler@4.86.0
-
-      - name: Deploy Worker
-        run: wrangler deploy --config wrangler.toml
+      - name: Check Cloudflare secret
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CF_TOKEN" ]; then
+            echo "❌ CLOUDFLARE_API_TOKEN is NOT available"
+            exit 1
+          fi
+
+          if [ -z "$CF_ACCOUNT" ]; then
+            echo "❌ CLOUDFLARE_ACCOUNT_ID is NOT available"
+            exit 1
+          fi
+
+          echo "✅ Both Cloudflare secrets are available"
