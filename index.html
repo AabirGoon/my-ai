@@ -1,3153 +1,2101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>My AI</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --bg: #f7f7f8;
-      --white: #ffffff;
-      --text: #202123;
-      --muted: #707070;
-      --border: #e5e5e5;
-      --dark: #202123;
-      --danger: #b42318;
-      --success: #15803d;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Arial,
-        sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    button,
-    textarea,
-    input {
-      font-family: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* =========================
-       APP
-    ========================= */
-
-    .app {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* =========================
-       HEADER
-    ========================= */
-
-    header {
-      height: 64px;
-      background: rgba(255,255,255,0.96);
-      border-bottom: 1px solid var(--border);
-
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      padding: 0 20px;
-
-      position: sticky;
-      top: 0;
-      z-index: 20;
-
-      backdrop-filter: blur(12px);
-    }
-
-    .logo {
-      font-size: 21px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .online {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 12px;
-      color: #666;
-    }
-
-    .online-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #22c55e;
-    }
-
-    .account-btn {
-      border: 1px solid var(--border);
-      background: white;
-      color: var(--text);
-      border-radius: 10px;
-      padding: 8px 12px;
-      font-size: 12px;
-    }
-
-    .account-btn:hover {
-      background: #f5f5f5;
-    }
-
-    /* =========================
-       AUTH SCREEN
-    ========================= */
-
-    .auth-screen {
-      width: 100%;
-      max-width: 430px;
-      margin: auto;
-      padding: 35px 20px 80px;
-    }
-
-    .auth-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 28px 22px;
-      box-shadow: 0 10px 35px rgba(0,0,0,.05);
-    }
-
-    .auth-card h1 {
-      font-size: 28px;
-      letter-spacing: -1px;
-      margin-bottom: 8px;
-    }
-
-    .auth-card p {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.55;
-      margin-bottom: 24px;
-    }
-
-    .auth-tabs {
-      display: flex;
-      gap: 6px;
-      background: #f1f1f2;
-      border-radius: 12px;
-      padding: 4px;
-      margin-bottom: 20px;
-    }
-
-    .auth-tab {
-      flex: 1;
-      border: none;
-      background: transparent;
-      border-radius: 9px;
-      padding: 10px;
-      color: #777;
-      font-size: 14px;
-    }
-
-    .auth-tab.active {
-      background: white;
-      color: var(--text);
-      box-shadow: 0 1px 5px rgba(0,0,0,.07);
-      font-weight: 600;
-    }
-
-    .field {
-      margin-bottom: 14px;
-    }
-
-    .field label {
-      display: block;
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 6px;
-    }
-
-    .field input {
-      width: 100%;
-      border: 1px solid #d8d8d8;
-      outline: none;
-      background: white;
-      color: var(--text);
-      border-radius: 12px;
-      padding: 12px 13px;
-      font-size: 15px;
-    }
-
-    .field input:focus {
-      border-color: #999;
-    }
-
-    .auth-submit {
-      width: 100%;
-      border: none;
-      border-radius: 12px;
-      background: var(--dark);
-      color: white;
-      padding: 13px;
-      font-size: 15px;
-      margin-top: 4px;
-    }
-
-    .auth-submit:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
-    .auth-message {
-      margin-top: 14px;
-      font-size: 13px;
-      line-height: 1.5;
-      color: #666;
-    }
-
-    .auth-message.error {
-      color: var(--danger);
-    }
-
-    .auth-message.success {
-      color: var(--success);
-    }
-
-    /* =========================
-       MAIN
-    ========================= */
-
-    main {
-      width: 100%;
-      max-width: 900px;
-      margin: 0 auto;
-      flex: 1;
-
-      padding:
-        55px
-        20px
-        150px;
-    }
-
-    .welcome {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .welcome h1 {
-      font-size: clamp(31px, 7vw, 48px);
-      font-weight: 700;
-      letter-spacing: -1.8px;
-      margin-bottom: 13px;
-    }
-
-    .welcome p {
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    /* =========================
-       CHAT
-    ========================= */
-
-    #chat {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .message {
-      width: 100%;
-      display: flex;
-    }
-
-    .message.user {
-      justify-content: flex-end;
-    }
-
-    .message.ai {
-      justify-content: flex-start;
-    }
-
-    .bubble {
-      max-width: 82%;
-      padding: 14px 17px;
-      border-radius: 18px;
-      font-size: 15px;
-      line-height: 1.65;
-
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-
-    .user .bubble {
-      background: var(--dark);
-      color: white;
-      border-bottom-right-radius: 5px;
-    }
-
-    .ai .bubble {
-      background: white;
-      border: 1px solid var(--border);
-      border-bottom-left-radius: 5px;
-    }
-
-    .sources {
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-      font-size: 12px;
-      color: #666;
-    }
-
-    .sources-title {
-      font-weight: 600;
-      margin-bottom: 7px;
-      color: #444;
-    }
-
-    .source-item {
-      margin-bottom: 7px;
-      overflow-wrap: anywhere;
-    }
-
-    .source-item a {
-      color: #555;
-      text-decoration: underline;
-    }
-
-    /* =========================
-       THINKING
-    ========================= */
-
-    .thinking {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      color: #777;
-      font-size: 14px;
-    }
-
-    .thinking-line {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-    }
-
-    .thinking-status {
-      font-size: 12px;
-      color: #999;
-    }
-
-    .dots {
-      display: flex;
-      gap: 4px;
-    }
-
-    .dots span {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: #777;
-      animation: blink 1.2s infinite;
-    }
-
-    .dots span:nth-child(2) {
-      animation-delay: .2s;
-    }
-
-    .dots span:nth-child(3) {
-      animation-delay: .4s;
-    }
-
-    @keyframes blink {
-      0%,
-      80%,
-      100% {
-        opacity: .25;
-      }
-
-      40% {
-        opacity: 1;
-      }
-    }
-
-    /* =========================
-       INPUT AREA
-    ========================= */
-
-    .input-area {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-
-      z-index: 30;
-
-      background: rgba(247,247,248,.96);
-      border-top: 1px solid var(--border);
-
-      padding:
-        13px
-        20px
-        17px;
-
-      backdrop-filter: blur(12px);
-    }
-
-    .input-box {
-      width: 100%;
-      max-width: 900px;
-      margin: 0 auto;
-
-      display: flex;
-      align-items: flex-end;
-      gap: 9px;
-
-      background: white;
-      border: 1px solid #d8d8d8;
-      border-radius: 18px;
-
-      padding:
-        7px
-        7px
-        7px
-        15px;
-
-      box-shadow:
-        0 5px 25px rgba(0,0,0,.06);
-    }
-
-    textarea {
-      flex: 1;
-
-      min-height: 45px;
-      max-height: 140px;
-
-      resize: none;
-
-      border: none;
-      outline: none;
-
-      background: transparent;
-      color: var(--text);
-
-      font-size: 15px;
-      line-height: 1.5;
-
-      padding:
-        10px
-        0;
-    }
-
-    textarea::placeholder {
-      color: #999;
-    }
-
-    #sendBtn {
-      width: 45px;
-      height: 45px;
-
-      flex-shrink: 0;
-
-      border: none;
-      border-radius: 14px;
-
-      background: var(--dark);
-      color: white;
-
-      font-size: 20px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      transition:
-        transform .15s,
-        opacity .15s;
-    }
-
-    #sendBtn:hover {
-      opacity: .88;
-    }
-
-    #sendBtn:active {
-      transform: scale(.94);
-    }
-
-    #sendBtn:disabled {
-      opacity: .45;
-      cursor: not-allowed;
-    }
-
-    .hint {
-      width: 100%;
-      max-width: 900px;
-      margin: 7px auto 0;
-
-      text-align: center;
-      color: #999;
-      font-size: 10px;
-    }
-
-    /* =========================
-       CHAT SIDEBAR
-    ========================= */
-
-    .drawer-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.25);
-      z-index: 50;
-    }
-
-    .drawer {
-      position: fixed;
-      left: 0;
-      top: 0;
-      bottom: 0;
-
-      width: min(330px, 88vw);
-
-      background: white;
-
-      z-index: 51;
-
-      box-shadow: 10px 0 35px rgba(0,0,0,.12);
-
-      display: flex;
-      flex-direction: column;
-
-      transform: translateX(-100%);
-      transition: transform .2s ease;
-    }
-
-    .drawer.open {
-      transform: translateX(0);
-    }
-
-    .drawer-header {
-      height: 64px;
-
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      padding: 0 15px;
-
-      border-bottom: 1px solid var(--border);
-    }
-
-    .drawer-title {
-      font-weight: 700;
-    }
-
-    .drawer-close {
-      border: none;
-      background: transparent;
-      font-size: 22px;
-      color: #666;
-    }
-
-    .new-chat-btn {
-      margin: 14px;
-      padding: 11px 13px;
-
-      border: 1px solid var(--border);
-      background: white;
-
-      border-radius: 11px;
-
-      font-size: 13px;
-      text-align: left;
-    }
-
-    .new-chat-btn:hover {
-      background: #f5f5f5;
-    }
-
-    .chat-list {
-      overflow-y: auto;
-      padding: 0 9px 20px;
-    }
-
-    .chat-row {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      margin-bottom: 3px;
-    }
-
-    .chat-open {
-      flex: 1;
-
-      border: none;
-      background: transparent;
-
-      padding: 11px 9px;
-
-      text-align: left;
-
-      border-radius: 9px;
-
-      font-size: 13px;
-
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .chat-open:hover {
-      background: #f4f4f5;
-    }
-
-    .chat-delete {
-      width: 30px;
-      height: 30px;
-
-      border: none;
-      background: transparent;
-
-      color: #999;
-
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .chat-delete:hover {
-      background: #f5f5f5;
-      color: var(--danger);
-    }
-
-    .empty-chats {
-      padding: 25px 15px;
-      text-align: center;
-      color: #999;
-      font-size: 13px;
-    }
-
-    /* =========================
-       ACCOUNT MENU
-    ========================= */
-
-    .account-menu {
-      position: fixed;
-      top: 58px;
-      right: 15px;
-
-      width: 260px;
-
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 15px;
-
-      padding: 10px;
-
-      z-index: 40;
-
-      box-shadow: 0 10px 30px rgba(0,0,0,.1);
-    }
-
-    .account-email {
-      padding: 9px;
-      font-size: 12px;
-      color: #777;
-      overflow-wrap: anywhere;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 7px;
-    }
-
-    .menu-btn {
-      width: 100%;
-      border: none;
-      background: transparent;
-      padding: 10px;
-      border-radius: 9px;
-      text-align: left;
-      font-size: 13px;
-    }
-
-    .menu-btn:hover {
-      background: #f5f5f5;
-    }
-
-    /* =========================
-       MOBILE
-    ========================= */
-
-    @media (max-width: 600px) {
-
-      header {
-        padding: 0 15px;
-      }
-
-      .online {
-        display: none;
-      }
-
-      .account-btn {
-        padding: 7px 10px;
-      }
-
-      main {
-        padding:
-          38px
-          13px
-          135px;
-      }
-
-      .welcome {
-        margin-bottom: 32px;
-      }
-
-      .welcome h1 {
-        font-size: 31px;
-      }
-
-      .welcome p {
-        font-size: 14px;
-      }
-
-      .bubble {
-        max-width: 90%;
-      }
-
-      .input-area {
-        padding:
-          9px
-          9px
-          13px;
-      }
-
-      .input-box {
-        border-radius: 17px;
-      }
-
-      .auth-screen {
-        padding:
-          25px
-          14px
-          70px;
-      }
-
-      .auth-card {
-        border-radius: 18px;
-        padding: 24px 18px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My AI</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#f7f7f8;
+--white:#fff;
+--text:#202123;
+--muted:#707070;
+--border:#e5e5e5;
+--dark:#202123;
+--danger:#b42318;
+--success:#15803d;
+}
+html{scroll-behavior:smooth}
+body{
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+background:var(--bg);
+color:var(--text);
+min-height:100vh;
+}
+button,input,textarea{font-family:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+
+/* APP */
+.app{min-height:100vh;display:flex;flex-direction:column}
+
+/* HEADER */
+header{
+height:64px;
+background:rgba(255,255,255,.96);
+border-bottom:1px solid var(--border);
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 20px;
+position:sticky;
+top:0;
+z-index:20;
+backdrop-filter:blur(12px);
+}
+.logo{
+font-size:21px;
+font-weight:700;
+letter-spacing:-.5px;
+cursor:pointer;
+}
+.header-right{display:flex;align-items:center;gap:14px}
+.online{display:flex;align-items:center;gap:7px;font-size:12px;color:#666}
+.online-dot{
+width:8px;height:8px;border-radius:50%;background:#22c55e
+}
+.account-btn{
+border:1px solid var(--border);
+background:white;
+color:var(--text);
+border-radius:10px;
+padding:8px 12px;
+font-size:12px;
+}
+
+/* AUTH */
+.auth-screen{
+width:100%;
+max-width:430px;
+margin:auto;
+padding:35px 20px 80px;
+}
+.auth-card{
+background:white;
+border:1px solid var(--border);
+border-radius:22px;
+padding:28px 22px;
+box-shadow:0 10px 35px rgba(0,0,0,.05);
+}
+.auth-card h1{
+font-size:28px;
+letter-spacing:-1px;
+margin-bottom:8px;
+}
+.auth-card p{
+color:var(--muted);
+font-size:14px;
+line-height:1.55;
+margin-bottom:24px;
+}
+.auth-tabs{
+display:flex;
+gap:6px;
+background:#f1f1f2;
+border-radius:12px;
+padding:4px;
+margin-bottom:20px;
+}
+.auth-tab{
+flex:1;
+border:0;
+background:transparent;
+border-radius:9px;
+padding:10px;
+color:#777;
+font-size:14px;
+}
+.auth-tab.active{
+background:white;
+color:var(--text);
+box-shadow:0 1px 5px rgba(0,0,0,.07);
+font-weight:600;
+}
+.field{margin-bottom:14px}
+.field label{
+display:block;
+font-size:12px;
+color:#666;
+margin-bottom:6px;
+}
+.field input{
+width:100%;
+border:1px solid #d8d8d8;
+outline:none;
+background:white;
+color:var(--text);
+border-radius:12px;
+padding:12px 13px;
+font-size:15px;
+}
+.auth-submit{
+width:100%;
+border:0;
+border-radius:12px;
+background:var(--dark);
+color:white;
+padding:13px;
+font-size:15px;
+margin-top:4px;
+}
+.auth-submit:disabled{opacity:.5}
+.auth-message{
+margin-top:14px;
+font-size:13px;
+line-height:1.5;
+color:#666;
+}
+.auth-message.error{color:var(--danger)}
+.auth-message.success{color:var(--success)}
+
+/* MAIN */
+main{
+width:100%;
+max-width:900px;
+margin:0 auto;
+flex:1;
+padding:55px 20px 150px;
+}
+.welcome{text-align:center;margin-bottom:40px}
+.welcome h1{
+font-size:clamp(31px,7vw,48px);
+font-weight:700;
+letter-spacing:-1.8px;
+margin-bottom:13px;
+}
+.welcome p{
+color:var(--muted);
+font-size:15px;
+line-height:1.6;
+}
+
+/* CHAT */
+#chat{display:flex;flex-direction:column;gap:20px}
+.message{width:100%;display:flex}
+.message.user{justify-content:flex-end}
+.message.ai{justify-content:flex-start}
+.bubble{
+max-width:82%;
+padding:14px 17px;
+border-radius:18px;
+font-size:15px;
+line-height:1.65;
+white-space:pre-wrap;
+overflow-wrap:anywhere;
+}
+.user .bubble{
+background:var(--dark);
+color:white;
+border-bottom-right-radius:5px;
+}
+.ai .bubble{
+background:white;
+border:1px solid var(--border);
+border-bottom-left-radius:5px;
+}
+.sources{
+margin-top:14px;
+padding-top:12px;
+border-top:1px solid var(--border);
+font-size:12px;
+color:#666;
+}
+.sources-title{
+font-weight:600;
+margin-bottom:7px;
+color:#444;
+}
+.source-item{margin-bottom:7px}
+.source-item a{color:#555;text-decoration:underline}
+
+/* THINKING */
+.thinking{
+display:flex;
+flex-direction:column;
+gap:7px;
+color:#777;
+font-size:14px;
+}
+.thinking-line{
+display:flex;
+align-items:center;
+gap:9px;
+}
+.thinking-status{font-size:12px;color:#999}
+.dots{display:flex;gap:4px}
+.dots span{
+width:5px;
+height:5px;
+border-radius:50%;
+background:#777;
+animation:blink 1.2s infinite;
+}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{
+0%,80%,100%{opacity:.25}
+40%{opacity:1}
+}
+
+/* INPUT */
+.input-area{
+position:fixed;
+left:0;
+right:0;
+bottom:0;
+z-index:30;
+background:rgba(247,247,248,.96);
+border-top:1px solid var(--border);
+padding:13px 20px 17px;
+backdrop-filter:blur(12px);
+}
+.input-box{
+width:100%;
+max-width:900px;
+margin:auto;
+display:flex;
+align-items:flex-end;
+gap:9px;
+background:white;
+border:1px solid #d8d8d8;
+border-radius:18px;
+padding:7px 7px 7px 15px;
+box-shadow:0 5px 25px rgba(0,0,0,.06);
+}
+textarea{
+flex:1;
+min-height:45px;
+max-height:140px;
+resize:none;
+border:0;
+outline:0;
+background:transparent;
+color:var(--text);
+font-size:15px;
+line-height:1.5;
+padding:10px 0;
+}
+textarea::placeholder{color:#999}
+#sendBtn{
+width:45px;
+height:45px;
+flex-shrink:0;
+border:0;
+border-radius:14px;
+background:var(--dark);
+color:white;
+font-size:20px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+#sendBtn:disabled{opacity:.45;cursor:not-allowed}
+.hint{
+width:100%;
+max-width:900px;
+margin:7px auto 0;
+text-align:center;
+color:#999;
+font-size:10px;
+}
+
+/* DRAWER */
+.drawer-overlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.25);
+z-index:50;
+}
+.drawer{
+position:fixed;
+left:0;
+top:0;
+bottom:0;
+width:min(330px,88vw);
+background:white;
+z-index:51;
+box-shadow:10px 0 35px rgba(0,0,0,.12);
+display:flex;
+flex-direction:column;
+transform:translateX(-100%);
+transition:transform .2s ease;
+}
+.drawer.open{transform:translateX(0)}
+.drawer-header{
+height:64px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 15px;
+border-bottom:1px solid var(--border);
+}
+.drawer-title{font-weight:700}
+.drawer-close{
+border:0;
+background:transparent;
+font-size:22px;
+color:#666;
+}
+.new-chat-btn{
+margin:14px;
+padding:11px 13px;
+border:1px solid var(--border);
+background:white;
+border-radius:11px;
+font-size:13px;
+text-align:left;
+}
+.chat-list{
+overflow-y:auto;
+padding:0 9px 20px;
+}
+.chat-row{
+display:flex;
+align-items:center;
+gap:5px;
+margin-bottom:3px;
+}
+.chat-open{
+flex:1;
+border:0;
+background:transparent;
+padding:11px 9px;
+text-align:left;
+border-radius:9px;
+font-size:13px;
+overflow:hidden;
+text-overflow:ellipsis;
+white-space:nowrap;
+}
+.chat-open:hover{background:#f4f4f5}
+.chat-delete{
+width:30px;
+height:30px;
+border:0;
+background:transparent;
+color:#999;
+border-radius:8px;
+font-size:14px;
+}
+.empty-chats{
+padding:25px 15px;
+text-align:center;
+color:#999;
+font-size:13px;
+}
+
+/* ACCOUNT */
+.account-menu{
+position:fixed;
+top:58px;
+right:15px;
+width:260px;
+background:white;
+border:1px solid var(--border);
+border-radius:15px;
+padding:10px;
+z-index:40;
+box-shadow:0 10px 30px rgba(0,0,0,.1);
+}
+.account-email{
+padding:9px;
+font-size:12px;
+color:#777;
+overflow-wrap:anywhere;
+border-bottom:1px solid var(--border);
+margin-bottom:7px;
+}
+.menu-btn{
+width:100%;
+border:0;
+background:transparent;
+padding:10px;
+border-radius:9px;
+text-align:left;
+font-size:13px;
+}
+.menu-btn:hover{background:#f5f5f5}
+
+/* MOBILE */
+@media(max-width:600px){
+header{padding:0 15px}
+.online{display:none}
+main{padding:38px 13px 135px}
+.welcome{margin-bottom:32px}
+.welcome h1{font-size:31px}
+.welcome p{font-size:14px}
+.bubble{max-width:90%}
+.input-area{padding:9px 9px 13px}
+.auth-screen{padding:25px 14px 70px}
+.auth-card{
+border-radius:18px;
+padding:24px 18px;
+}
+}
+</style>
 </head>
 
 <body>
 
-  <!-- =========================
-       AUTHENTICATION
-  ========================== -->
+<section id="authScreen" class="auth-screen">
+<div class="auth-card">
 
-  <section id="authScreen" class="auth-screen">
+<h1>My AI</h1>
 
-    <div class="auth-card">
+<p id="authDescription">
+Sign in to use My AI and save your conversations.
+</p>
 
-      <h1>My AI</h1>
+<div class="auth-tabs">
+<button id="loginTab" class="auth-tab active" type="button">Sign in</button>
+<button id="signupTab" class="auth-tab" type="button">Create account</button>
+</div>
 
-      <p id="authDescription">
-        Sign in to use My AI and save your conversations.
-      </p>
+<form id="authForm">
 
-      <div class="auth-tabs">
+<div class="field">
+<label for="email">Email</label>
+<input id="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+</div>
 
-        <button
-          id="loginTab"
-          class="auth-tab active"
-          type="button"
-        >
-          Sign in
-        </button>
+<div class="field">
+<label for="password">Password</label>
+<input id="password" type="password" autocomplete="current-password" placeholder="Your password" required minlength="6">
+</div>
 
-        <button
-          id="signupTab"
-          class="auth-tab"
-          type="button"
-        >
-          Create account
-        </button>
+<button id="authSubmit" class="auth-submit" type="submit">Sign in</button>
 
-      </div>
+</form>
 
-      <form id="authForm">
+<div id="authMessage" class="auth-message"></div>
 
-        <div class="field">
+</div>
+</section>
 
-          <label for="email">
-            Email
-          </label>
 
-          <input
-            id="email"
-            type="email"
-            autocomplete="email"
-            placeholder="you@example.com"
-            required
-          >
+<div id="app" class="app hidden">
 
-        </div>
+<header>
 
-        <div class="field">
+<div class="logo" id="logoButton" title="Open chats">My AI</div>
 
-          <label for="password">
-            Password
-          </label>
+<div class="header-right">
 
-          <input
-            id="password"
-            type="password"
-            autocomplete="current-password"
-            placeholder="Your password"
-            required
-            minlength="6"
-          >
+<div class="online">
+<span class="online-dot"></span>
+AI online
+</div>
 
-        </div>
+<button id="accountBtn" class="account-btn" type="button">
+Account
+</button>
 
-        <button
-          id="authSubmit"
-          class="auth-submit"
-          type="submit"
-        >
-          Sign in
-        </button>
+</div>
+</header>
 
-      </form>
 
-      <div
-        id="authMessage"
-        class="auth-message"
-      ></div>
+<div id="accountMenu" class="account-menu hidden">
 
-    </div>
+<div id="accountEmail" class="account-email"></div>
 
-  </section>
+<button id="newChatMenuBtn" class="menu-btn" type="button">
+New chat
+</button>
 
+<button id="logoutBtn" class="menu-btn" type="button">
+Sign out
+</button>
 
-  <!-- =========================
-       MAIN APP
-  ========================== -->
+</div>
 
-  <div
-    id="app"
-    class="app hidden"
-  >
 
-    <header>
+<div id="drawerOverlay" class="drawer-overlay hidden"></div>
 
-      <div
-        class="logo"
-        id="logoButton"
-        style="cursor:pointer;"
-        title="Open chats"
-      >
-        My AI
-      </div>
+<aside id="drawer" class="drawer">
 
-      <div class="header-right">
+<div class="drawer-header">
+<div class="drawer-title">Your chats</div>
 
-        <div class="online">
+<button id="drawerClose" class="drawer-close" type="button">
+×
+</button>
+</div>
 
-          <span class="online-dot"></span>
+<button id="newChatBtn" class="new-chat-btn" type="button">
+＋ New chat
+</button>
 
-          AI online
+<div id="chatList" class="chat-list"></div>
 
-        </div>
+</aside>
 
-        <button
-          id="accountBtn"
-          class="account-btn"
-          type="button"
-        >
-          Account
-        </button>
 
-      </div>
+<main>
 
-    </header>
+<div class="welcome" id="welcome">
 
+<h1>What can I help you with?</h1>
 
-    <!-- ACCOUNT MENU -->
+<p>
+Ask anything. Learn, write, think, plan and explore.
+</p>
 
-    <div
-      id="accountMenu"
-      class="account-menu hidden"
-    >
+</div>
 
-      <div
-        id="accountEmail"
-        class="account-email"
-      ></div>
+<div id="chat"></div>
 
-      <button
-        id="newChatMenuBtn"
-        class="menu-btn"
-        type="button"
-      >
-        New chat
-      </button>
+</main>
 
-      <button
-        id="logoutBtn"
-        class="menu-btn"
-        type="button"
-      >
-        Sign out
-      </button>
 
-    </div>
+<div class="input-area">
 
+<div class="input-box">
 
-    <!-- CHAT DRAWER -->
+<textarea
+id="prompt"
+rows="1"
+placeholder="Ask anything..."
+autocomplete="off"
+></textarea>
 
-    <div
-      id="drawerOverlay"
-      class="drawer-overlay hidden"
-    ></div>
+<button id="sendBtn" type="button" aria-label="Send message">
+↑
+</button>
 
-    <aside
-      id="drawer"
-      class="drawer"
-    >
+</div>
 
-      <div class="drawer-header">
+<div class="hint">
+My AI can make mistakes. Check important information.
+</div>
 
-        <div class="drawer-title">
-          Your chats
-        </div>
+</div>
 
-        <button
-          id="drawerClose"
-          class="drawer-close"
-          type="button"
-          aria-label="Close chats"
-        >
-          ×
-        </button>
+</div>
 
-      </div>
 
-      <button
-        id="newChatBtn"
-        class="new-chat-btn"
-        type="button"
-      >
-        ＋ New chat
-      </button>
+<script>
 
-      <div
-        id="chatList"
-        class="chat-list"
-      ></div>
+/* =========================================================
+   CONFIG
+========================================================= */
 
-    </aside>
+const BACKEND_URL =
+"https://my-ai-backend.techaabir.workers.dev/";
 
+const SUPABASE_URL =
+"https://gmkgorihdhqhbahrruym.supabase.co";
 
-    <!-- MAIN -->
+const SUPABASE_PUBLISHABLE_KEY =
+"sb_publishable__fN6yItD7X1TErhmJp35Pg_k0L9FaRa";
 
-    <main>
 
-      <div
-        class="welcome"
-        id="welcome"
-      >
+/* =========================================================
+   STORAGE
+========================================================= */
 
-        <h1>
-          What can I help you with?
-        </h1>
+const SESSION_KEY = "myai_session";
+const CURRENT_CHAT_KEY = "myai_current_chat";
 
-        <p>
-          Ask anything. Learn, write, think, plan and explore.
-        </p>
 
-      </div>
+/* =========================================================
+   ELEMENTS
+========================================================= */
 
-      <div id="chat"></div>
+const authScreen = document.getElementById("authScreen");
+const authForm = document.getElementById("authForm");
+const authDescription = document.getElementById("authDescription");
+const loginTab = document.getElementById("loginTab");
+const signupTab = document.getElementById("signupTab");
+const authSubmit = document.getElementById("authSubmit");
+const authMessage = document.getElementById("authMessage");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
 
-    </main>
+const app = document.getElementById("app");
+const accountBtn = document.getElementById("accountBtn");
+const accountMenu = document.getElementById("accountMenu");
+const accountEmail = document.getElementById("accountEmail");
+const logoutBtn = document.getElementById("logoutBtn");
+const newChatMenuBtn = document.getElementById("newChatMenuBtn");
 
+const logoButton = document.getElementById("logoButton");
+const drawer = document.getElementById("drawer");
+const drawerOverlay = document.getElementById("drawerOverlay");
+const drawerClose = document.getElementById("drawerClose");
+const newChatBtn = document.getElementById("newChatBtn");
+const chatList = document.getElementById("chatList");
 
-    <!-- INPUT -->
+const promptInput = document.getElementById("prompt");
+const sendBtn = document.getElementById("sendBtn");
+const chat = document.getElementById("chat");
+const welcome = document.getElementById("welcome");
 
-    <div class="input-area">
 
-      <div class="input-box">
+/* =========================================================
+   STATE
+========================================================= */
 
-        <textarea
-          id="prompt"
-          rows="1"
-          placeholder="Ask anything..."
-          autocomplete="off"
-        ></textarea>
+let isSignupMode = false;
+let session = null;
+let currentUser = null;
+let currentChatId =
+localStorage.getItem(CURRENT_CHAT_KEY) || null;
 
-        <button
-          id="sendBtn"
-          aria-label="Send message"
-          type="button"
-        >
-          ↑
-        </button>
 
-      </div>
+/* =========================================================
+   AUTH MESSAGE
+========================================================= */
 
-      <div class="hint">
-        My AI can make mistakes. Check important information.
-      </div>
+function setAuthMessage(text,type=""){
+authMessage.textContent = text;
+authMessage.className =
+"auth-message" + (type ? " " + type : "");
+}
 
-    </div>
 
-  </div>
+/* =========================================================
+   SUPABASE
+========================================================= */
 
+async function supabaseRequest(endpoint,options={}){
 
-  <script>
+const headers = {
+"Content-Type":"application/json",
+"apikey":SUPABASE_PUBLISHABLE_KEY,
+...(options.headers || {})
+};
 
-    /* =====================================================
-       CONFIGURATION
-    ===================================================== */
+const response = await fetch(
+SUPABASE_URL + endpoint,
+{
+...options,
+headers
+}
+);
 
-    const BACKEND_URL =
-      "https://my-ai-backend.techaabir.workers.dev/";
+let data = null;
 
-    const SUPABASE_URL =
-      "https://gmkgorihdhqhbahrruym.supabase.co";
+try{
+data = await response.json();
+}catch{
+data = null;
+}
 
-    const SUPABASE_PUBLISHABLE_KEY =
-      "sb_publishable__fN6yItD7X1TErhmJp35Pg_k0L9FaRa";
+if(!response.ok){
 
+throw new Error(
+data?.msg ||
+data?.message ||
+data?.error_description ||
+data?.error ||
+"Authentication request failed."
+);
 
-    /* =====================================================
-       STORAGE
-    ===================================================== */
+}
 
-    const SESSION_KEY =
-      "myai_session";
+return data;
+}
 
-    const CURRENT_CHAT_KEY =
-      "myai_current_chat";
 
+async function signUp(email,password){
 
-    /* =====================================================
-       ELEMENTS
-    ===================================================== */
+return supabaseRequest(
+"/auth/v1/signup",
+{
+method:"POST",
+body:JSON.stringify({
+email,
+password
+})
+}
+);
 
-    const authScreen =
-      document.getElementById("authScreen");
+}
 
-    const authForm =
-      document.getElementById("authForm");
 
-    const authDescription =
-      document.getElementById("authDescription");
+async function signIn(email,password){
 
-    const loginTab =
-      document.getElementById("loginTab");
+return supabaseRequest(
+"/auth/v1/token?grant_type=password",
+{
+method:"POST",
+body:JSON.stringify({
+email,
+password
+})
+}
+);
 
-    const signupTab =
-      document.getElementById("signupTab");
+}
 
-    const authSubmit =
-      document.getElementById("authSubmit");
 
-    const authMessage =
-      document.getElementById("authMessage");
+/* =========================================================
+   SESSION
+========================================================= */
 
-    const emailInput =
-      document.getElementById("email");
+function saveSession(data){
 
-    const passwordInput =
-      document.getElementById("password");
+session = {
+access_token:data.access_token,
+refresh_token:data.refresh_token,
+expires_at:
+data.expires_at ||
+Math.floor(Date.now()/1000) +
+(data.expires_in || 3600),
+user:data.user || null
+};
 
-    const app =
-      document.getElementById("app");
+localStorage.setItem(
+SESSION_KEY,
+JSON.stringify(session)
+);
+}
 
-    const accountBtn =
-      document.getElementById("accountBtn");
 
-    const accountMenu =
-      document.getElementById("accountMenu");
+function getUserFromJWT(token){
 
-    const accountEmail =
-      document.getElementById("accountEmail");
+try{
 
-    const logoutBtn =
-      document.getElementById("logoutBtn");
+const parts = token.split(".");
 
-    const newChatMenuBtn =
-      document.getElementById("newChatMenuBtn");
+if(parts.length !== 3) return null;
 
-    const logoButton =
-      document.getElementById("logoButton");
+const normalized =
+parts[1]
+.replace(/-/g,"+")
+.replace(/_/g,"/");
 
-    const drawer =
-      document.getElementById("drawer");
+const padded =
+normalized +
+"=".repeat(
+(4 - normalized.length % 4) % 4
+);
 
-    const drawerOverlay =
-      document.getElementById("drawerOverlay");
+const payload =
+JSON.parse(atob(padded));
 
-    const drawerClose =
-      document.getElementById("drawerClose");
+if(!payload.sub) return null;
 
-    const newChatBtn =
-      document.getElementById("newChatBtn");
+return {
+id:payload.sub,
+email:payload.email || ""
+};
 
-    const chatList =
-      document.getElementById("chatList");
+}catch{
+return null;
+}
+}
 
-    const promptInput =
-      document.getElementById("prompt");
 
-    const sendBtn =
-      document.getElementById("sendBtn");
+async function refreshSession(){
 
-    const chat =
-      document.getElementById("chat");
+const saved =
+localStorage.getItem(SESSION_KEY);
 
-    const welcome =
-      document.getElementById("welcome");
+if(!saved) return null;
 
+let oldSession;
 
-    /* =====================================================
-       STATE
-    ===================================================== */
+try{
+oldSession = JSON.parse(saved);
+}catch{
 
-    let isSignupMode = false;
+localStorage.removeItem(SESSION_KEY);
+return null;
+}
 
-    let session = null;
+if(!oldSession?.refresh_token){
+return null;
+}
 
-    let currentChatId =
-      localStorage.getItem(CURRENT_CHAT_KEY) || null;
+try{
 
-    let currentUser = null;
+const data =
+await supabaseRequest(
+"/auth/v1/token?grant_type=refresh_token",
+{
+method:"POST",
+body:JSON.stringify({
+refresh_token:oldSession.refresh_token
+})
+}
+);
 
+if(data?.access_token){
 
-    /* =====================================================
-       AUTH MESSAGE
-    ===================================================== */
+saveSession(data);
+return data;
 
-    function setAuthMessage(
-      text,
-      type = ""
-    ) {
+}
 
-      authMessage.textContent =
-        text;
+}catch(error){
 
-      authMessage.className =
-        "auth-message" +
-        (type ? " " + type : "");
+console.warn(
+"Session refresh failed:",
+error
+);
 
-    }
+}
 
+localStorage.removeItem(SESSION_KEY);
+session = null;
+currentUser = null;
 
-    /* =====================================================
-       SUPABASE REQUEST
-    ===================================================== */
+return null;
+}
 
-    async function supabaseRequest(
-      endpoint,
-      options = {}
-    ) {
 
-      const headers = {
-        "Content-Type": "application/json",
-        "apikey": SUPABASE_PUBLISHABLE_KEY,
-        ...(options.headers || {})
-      };
+async function ensureValidSession(){
 
-      const response =
-        await fetch(
-          SUPABASE_URL + endpoint,
-          {
-            ...options,
-            headers
-          }
-        );
+const saved =
+localStorage.getItem(SESSION_KEY);
 
-      let data = null;
+if(!saved) return false;
 
-      try {
+try{
+session = JSON.parse(saved);
+}catch{
 
-        data =
-          await response.json();
+localStorage.removeItem(SESSION_KEY);
+session = null;
+return false;
+}
 
-      } catch {
+if(!session?.access_token){
+return false;
+}
 
-        data = null;
+const expiresAt =
+Number(session.expires_at || 0);
 
-      }
+const now =
+Math.floor(Date.now()/1000);
 
-      if (!response.ok) {
+if(expiresAt && expiresAt < now + 60){
 
-        throw new Error(
-          data?.msg ||
-          data?.message ||
-          data?.error_description ||
-          data?.error ||
-          "Authentication request failed."
-        );
+const refreshed =
+await refreshSession();
 
-      }
+if(!refreshed){
+return false;
+}
 
-      return data;
+}
 
-    }
+currentUser =
+session.user ||
+getUserFromJWT(session.access_token);
 
+return !!currentUser;
+}
 
-    /* =====================================================
-       SIGN UP
-    ===================================================== */
 
-    async function signUp(
-      email,
-      password
-    ) {
+/* =========================================================
+   LOGOUT
+========================================================= */
 
-      return await supabaseRequest(
-        "/auth/v1/signup",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            email,
-            password
-          })
-        }
-      );
+function logout(){
 
-    }
+session = null;
+currentUser = null;
+currentChatId = null;
 
+localStorage.removeItem(SESSION_KEY);
+localStorage.removeItem(CURRENT_CHAT_KEY);
 
-    /* =====================================================
-       SIGN IN
-    ===================================================== */
+closeAccountMenu();
+closeDrawer();
 
-    async function signIn(
-      email,
-      password
-    ) {
+chat.innerHTML = "";
+welcome.style.display = "";
 
-      return await supabaseRequest(
-        "/auth/v1/token?grant_type=password",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            email,
-            password
-          })
-        }
-      );
+app.classList.add("hidden");
+authScreen.classList.remove("hidden");
 
-    }
+passwordInput.value = "";
 
+setAuthMessage("");
+updateAuthMode();
+}
 
-    /* =====================================================
-       SAVE SESSION
-    ===================================================== */
 
-    function saveSession(data) {
+/* =========================================================
+   AUTH MODE
+========================================================= */
 
-      session = {
-        access_token:
-          data.access_token,
+function updateAuthMode(){
 
-        refresh_token:
-          data.refresh_token,
+if(isSignupMode){
 
-        expires_at:
-          data.expires_at ||
-          (
-            Math.floor(
-              Date.now() / 1000
-            ) +
-            (
-              data.expires_in ||
-              3600
-            )
-          ),
+signupTab.classList.add("active");
+loginTab.classList.remove("active");
 
-        user:
-          data.user || null
-      };
+authSubmit.textContent = "Create account";
 
-      localStorage.setItem(
-        SESSION_KEY,
-        JSON.stringify(session)
-      );
+authDescription.textContent =
+"Create a free account to use My AI and save your conversations.";
 
-    }
+passwordInput.autocomplete = "new-password";
 
+}else{
 
-    /* =====================================================
-       GET USER FROM JWT
-    ===================================================== */
+loginTab.classList.add("active");
+signupTab.classList.remove("active");
 
-    function getUserFromJWT(token) {
+authSubmit.textContent = "Sign in";
 
-      try {
+authDescription.textContent =
+"Sign in to use My AI and save your conversations.";
 
-        const parts =
-          token.split(".");
+passwordInput.autocomplete = "current-password";
+}
+}
 
-        if (parts.length !== 3) {
-          return null;
-        }
 
-        const normalized =
-          parts[1]
-            .replace(/-/g, "+")
-            .replace(/_/g, "/");
+/* =========================================================
+   AUTH FORM
+========================================================= */
 
-        const padded =
-          normalized +
-          "=".repeat(
-            (
-              4 -
-              normalized.length % 4
-            ) % 4
-          );
+authForm.addEventListener("submit",async event=>{
 
-        const payload =
-          JSON.parse(
-            atob(padded)
-          );
+event.preventDefault();
 
-        if (!payload?.sub) {
-          return null;
-        }
+const email = emailInput.value.trim();
+const password = passwordInput.value;
 
-        return {
-          id: payload.sub,
-          email: payload.email || ""
-        };
+if(!email || !password) return;
 
-      } catch {
+authSubmit.disabled = true;
 
-        return null;
+setAuthMessage(
+isSignupMode
+? "Creating your account..."
+: "Signing you in..."
+);
 
-      }
+try{
 
-    }
+let data;
 
+if(isSignupMode){
 
-    /* =====================================================
-       REFRESH SESSION
-    ===================================================== */
+data = await signUp(email,password);
 
-    async function refreshSession() {
+if(!data?.access_token){
 
-      const saved =
-        localStorage.getItem(
-          SESSION_KEY
-        );
+setAuthMessage(
+"Account created. Check your email and confirm your account, then sign in.",
+"success"
+);
 
-      if (!saved) {
-        return null;
-      }
+passwordInput.value = "";
+return;
+}
 
-      let oldSession;
+}else{
 
-      try {
+data = await signIn(email,password);
 
-        oldSession =
-          JSON.parse(saved);
+}
 
-      } catch {
+if(!data?.access_token){
 
-        localStorage.removeItem(
-          SESSION_KEY
-        );
+throw new Error(
+"No login session was returned."
+);
+}
 
-        return null;
+saveSession(data);
 
-      }
+currentUser =
+data.user ||
+getUserFromJWT(data.access_token);
 
-      if (!oldSession?.refresh_token) {
-        return null;
-      }
+showApp();
 
-      try {
+await loadChatList();
+await restoreCurrentChat();
 
-        const data =
-          await supabaseRequest(
-            "/auth/v1/token?grant_type=refresh_token",
-            {
-              method: "POST",
-              body: JSON.stringify({
-                refresh_token:
-                  oldSession.refresh_token
-              })
-            }
-          );
+}catch(error){
 
-        if (data?.access_token) {
+console.error(
+"Authentication error:",
+error
+);
 
-          saveSession(data);
+setAuthMessage(
+error?.message ||
+"Authentication failed.",
+"error"
+);
 
-          return data;
+}finally{
 
-        }
+authSubmit.disabled = false;
 
-      } catch (error) {
+}
 
-        console.warn(
-          "Session refresh failed:",
-          error
-        );
+});
 
-      }
 
-      localStorage.removeItem(
-        SESSION_KEY
-      );
+loginTab.addEventListener("click",()=>{
 
-      session = null;
-      currentUser = null;
+isSignupMode = false;
+setAuthMessage("");
+updateAuthMode();
 
-      return null;
+});
 
-    }
 
+signupTab.addEventListener("click",()=>{
 
-    /* =====================================================
-       ENSURE VALID SESSION
-    ===================================================== */
+isSignupMode = true;
+setAuthMessage("");
+updateAuthMode();
 
-    async function ensureValidSession() {
+});
 
-      const saved =
-        localStorage.getItem(
-          SESSION_KEY
-        );
 
-      if (!saved) {
-        return false;
-      }
+/* =========================================================
+   SHOW APP
+========================================================= */
 
-      try {
+function showApp(){
 
-        session =
-          JSON.parse(saved);
+authScreen.classList.add("hidden");
+app.classList.remove("hidden");
 
-      } catch {
+accountEmail.textContent =
+currentUser?.email || "Signed in";
+}
 
-        localStorage.removeItem(
-          SESSION_KEY
-        );
 
-        session = null;
+/* =========================================================
+   BACKEND REQUEST
+========================================================= */
 
-        return false;
+async function backendRequest(path,options={}){
 
-      }
+const valid =
+await ensureValidSession();
 
-      if (!session?.access_token) {
-        return false;
-      }
+if(!valid){
 
-      const expiresAt =
-        Number(
-          session.expires_at || 0
-        );
+logout();
 
-      const now =
-        Math.floor(
-          Date.now() / 1000
-        );
+throw new Error(
+"Your session has expired. Please sign in again."
+);
+}
 
-      if (
-        expiresAt &&
-        expiresAt < now + 60
-      ) {
+const headers = {
+"Content-Type":"application/json",
+"Authorization":
+"Bearer " + session.access_token,
+...(options.headers || {})
+};
 
-        const refreshed =
-          await refreshSession();
+const url =
+BACKEND_URL +
+path.replace(/^\/+/,"");
 
-        if (!refreshed) {
-          return false;
-        }
+let response;
 
-      }
+try{
 
-      currentUser =
-        session.user ||
-        getUserFromJWT(
-          session.access_token
-        );
+response =
+await fetch(
+url,
+{
+...options,
+headers
+}
+);
 
-      if (!currentUser) {
-        return false;
-      }
+}catch{
 
-      return true;
+throw new Error(
+"Could not connect to the AI server."
+);
+}
 
-    }
 
+if(response.status === 401){
 
-    /* =====================================================
-       LOGOUT
-    ===================================================== */
+const refreshed =
+await refreshSession();
 
-    function logout() {
+if(refreshed){
 
-      session = null;
-      currentUser = null;
+headers.Authorization =
+"Bearer " + session.access_token;
 
-      localStorage.removeItem(
-        SESSION_KEY
-      );
+try{
 
-      localStorage.removeItem(
-        CURRENT_CHAT_KEY
-      );
+response =
+await fetch(
+url,
+{
+...options,
+headers
+}
+);
 
-      currentChatId = null;
+}catch{
 
-      closeAccountMenu();
-      closeDrawer();
+throw new Error(
+"Could not connect to the AI server."
+);
 
-      chat.innerHTML = "";
+}
 
-      welcome.style.display = "";
+}else{
 
-      app.classList.add(
-        "hidden"
-      );
+logout();
 
-      authScreen.classList.remove(
-        "hidden"
-      );
+throw new Error(
+"Your session has expired. Please sign in again."
+);
 
-      passwordInput.value = "";
+}
+}
 
-      setAuthMessage("");
 
-      updateAuthMode();
+let data;
 
-    }
+try{
 
+data = await response.json();
 
-    /* =====================================================
-       AUTH MODE
-    ===================================================== */
+}catch{
 
-    function updateAuthMode() {
+throw new Error(
+"The AI server returned an invalid response."
+);
 
-      if (isSignupMode) {
+}
 
-        signupTab.classList.add(
-          "active"
-        );
 
-        loginTab.classList.remove(
-          "active"
-        );
+if(!response.ok){
 
-        authSubmit.textContent =
-          "Create account";
+throw new Error(
+data?.error ||
+data?.message ||
+"Server request failed."
+);
 
-        authDescription.textContent =
-          "Create a free account to use My AI and save your conversations.";
+}
 
-        passwordInput.autocomplete =
-          "new-password";
+return data;
+}
 
-      } else {
 
-        loginTab.classList.add(
-          "active"
-        );
+/* =========================================================
+   SCROLL
+========================================================= */
 
-        signupTab.classList.remove(
-          "active"
-        );
+function scrollToBottom(){
 
-        authSubmit.textContent =
-          "Sign in";
+requestAnimationFrame(()=>{
 
-        authDescription.textContent =
-          "Sign in to use My AI and save your conversations.";
+window.scrollTo({
+top:document.documentElement.scrollHeight,
+behavior:"smooth"
+});
 
-        passwordInput.autocomplete =
-          "current-password";
+});
+}
 
-      }
 
-    }
+/* =========================================================
+   ADD MESSAGE
+========================================================= */
 
+function addMessage(type,text,sources=null){
 
-    /* =====================================================
-       AUTH FORM
-    ===================================================== */
+const message =
+document.createElement("div");
 
-    authForm.addEventListener(
-      "submit",
-      async function(event) {
+message.className =
+"message " + type;
 
-        event.preventDefault();
+const bubble =
+document.createElement("div");
 
-        const email =
-          emailInput.value.trim();
+bubble.className = "bubble";
 
-        const password =
-          passwordInput.value;
+bubble.textContent = text || "";
 
-        if (!email || !password) {
-          return;
-        }
+message.appendChild(bubble);
 
-        authSubmit.disabled = true;
 
-        setAuthMessage(
-          isSignupMode
-            ? "Creating your account..."
-            : "Signing you in..."
-        );
+if(
+type === "ai" &&
+Array.isArray(sources) &&
+sources.length
+){
 
-        try {
+const sourceBox =
+document.createElement("div");
 
-          let data;
+sourceBox.className = "sources";
 
-          if (isSignupMode) {
+const title =
+document.createElement("div");
 
-            data =
-              await signUp(
-                email,
-                password
-              );
+title.className = "sources-title";
+title.textContent = "Sources used";
 
-            if (!data?.access_token) {
+sourceBox.appendChild(title);
 
-              setAuthMessage(
-                "Account created. Check your email and confirm your account, then sign in.",
-                "success"
-              );
 
-              passwordInput.value = "";
+sources.forEach((source,index)=>{
 
-              return;
+if(!source || !source.title) return;
 
-            }
+const item =
+document.createElement("div");
 
-          } else {
+item.className = "source-item";
 
-            data =
-              await signIn(
-                email,
-                password
-              );
+const label =
+document.createElement("span");
 
-          }
+label.textContent =
+"[" + (index + 1) + "] " +
+source.title;
 
-          if (!data?.access_token) {
+item.appendChild(label);
 
-            throw new Error(
-              "No login session was returned."
-            );
 
-          }
+if(source.url){
 
-          saveSession(data);
+item.appendChild(
+document.createTextNode(" — ")
+);
 
-          currentUser =
-            data.user ||
-            getUserFromJWT(
-              data.access_token
-            );
+const link =
+document.createElement("a");
 
-          showApp();
+link.href = source.url;
+link.target = "_blank";
+link.rel = "noopener noreferrer";
+link.textContent = "Open source";
 
-          await loadChatList();
+item.appendChild(link);
 
-          await restoreCurrentChat();
+}
 
-        } catch (error) {
+sourceBox.appendChild(item);
 
-          console.error(
-            "Authentication error:",
-            error
-          );
+});
 
-          setAuthMessage(
-            error.message ||
-            "Authentication failed.",
-            "error"
-          );
 
-        } finally {
+bubble.appendChild(sourceBox);
 
-          authSubmit.disabled =
-            false;
+}
 
-        }
 
-      }
-    );
+chat.appendChild(message);
 
+scrollToBottom();
 
-    /* =====================================================
-       AUTH TABS
-    ===================================================== */
+return bubble;
+}
 
-    loginTab.addEventListener(
-      "click",
-      function() {
 
-        isSignupMode = false;
+/* =========================================================
+   THINKING
+========================================================= */
 
-        setAuthMessage("");
+function createThinking(){
 
-        updateAuthMode();
+const message =
+document.createElement("div");
 
-      }
-    );
+message.className = "message ai";
 
+const bubble =
+document.createElement("div");
 
-    signupTab.addEventListener(
-      "click",
-      function() {
+bubble.className =
+"bubble thinking";
 
-        isSignupMode = true;
+bubble.innerHTML = `
+<div class="thinking-line">
+<span>Thinking</span>
+<span class="dots">
+<span></span>
+<span></span>
+<span></span>
+</span>
+</div>
 
-        setAuthMessage("");
+<div class="thinking-status">
+Understanding your request...
+</div>
+`;
 
-        updateAuthMode();
+message.appendChild(bubble);
+chat.appendChild(message);
 
-      }
-    );
+scrollToBottom();
 
+const status =
+bubble.querySelector(".thinking-status");
 
-    /* =====================================================
-       SHOW APP
-    ===================================================== */
+const statuses = [
+"Understanding your request...",
+"Working on it...",
+"Checking the best approach...",
+"Preparing your answer..."
+];
 
-    function showApp() {
+let step = 0;
 
-      authScreen.classList.add(
-        "hidden"
-      );
+const interval =
+setInterval(()=>{
 
-      app.classList.remove(
-        "hidden"
-      );
+step++;
 
-      accountEmail.textContent =
-        currentUser?.email ||
-        "Signed in";
+if(status){
+status.textContent =
+statuses[step % statuses.length];
+}
 
-    }
+},1600);
 
+message._thinkingInterval = interval;
 
-    /* =====================================================
-       AUTHENTICATED BACKEND REQUEST
-    ===================================================== */
+return message;
+}
 
-    async function backendRequest(
-      path,
-      options = {}
-    ) {
 
-      if (!session?.access_token) {
+/* =========================================================
+   SEND MESSAGE
+========================================================= */
 
-        const valid =
-          await ensureValidSession();
+async function sendMessage(){
 
-        if (!valid) {
+if(sendBtn.disabled) return;
 
-          logout();
+const prompt =
+promptInput.value.trim();
 
-          throw new Error(
-            "Your session has expired. Please sign in again."
-          );
+if(!prompt) return;
 
-        }
+promptInput.value = "";
+promptInput.style.height = "auto";
 
-      }
+sendBtn.disabled = true;
 
-      const expiresAt =
-        Number(
-          session.expires_at || 0
-        );
+const valid =
+await ensureValidSession();
 
-      const now =
-        Math.floor(
-          Date.now() / 1000
-        );
+if(!valid){
 
-      if (
-        expiresAt &&
-        expiresAt < now + 60
-      ) {
+sendBtn.disabled = false;
+logout();
 
-        const refreshed =
-          await refreshSession();
+setAuthMessage(
+"Please sign in again.",
+"error"
+);
 
-        if (!refreshed) {
+return;
+}
 
-          logout();
+welcome.style.display = "none";
 
-          throw new Error(
-            "Your session has expired. Please sign in again."
-          );
+addMessage("user",prompt);
 
-        }
+const thinking =
+createThinking();
 
-      }
+try{
 
-      const headers = {
-        "Content-Type":
-          "application/json",
+const data =
+await backendRequest(
+"/api/ask",
+{
+method:"POST",
+body:JSON.stringify({
+prompt:prompt,
+chatId:currentChatId
+})
+}
+);
 
-        "Authorization":
-          "Bearer " +
-          session.access_token,
 
-        ...(options.headers || {})
-      };
+if(thinking?._thinkingInterval){
+clearInterval(
+thinking._thinkingInterval
+);
+}
 
-      const url =
-        BACKEND_URL +
-        path.replace(
-          /^\/+/,
-          ""
-        );
+thinking.remove();
 
-      let response;
 
-      try {
+if(!data?.success){
 
-        response =
-          await fetch(
-            url,
-            {
-              ...options,
-              headers
-            }
-          );
+throw new Error(
+data?.error ||
+"Something went wrong."
+);
 
-      } catch (error) {
+}
 
-        throw new Error(
-          "Could not connect to the AI server."
-        );
 
-      }
+let answer = "";
 
-      if (response.status === 401) {
+if(
+data.result &&
+typeof data.result === "object"
+){
 
-        const refreshed =
-          await refreshSession();
+if(
+typeof data.result.response === "string"
+){
 
-        if (refreshed) {
+answer =
+data.result.response;
 
-          headers.Authorization =
-            "Bearer " +
-            session.access_token;
+}else if(
+typeof data.result.result === "string"
+){
 
-          try {
+answer =
+data.result.result;
 
-            response =
-              await fetch(
-                url,
-                {
-                  ...options,
-                  headers
-                }
-              );
+}else{
 
-          } catch {
+answer =
+JSON.stringify(
+data.result,
+null,
+2
+);
 
-            throw new Error(
-              "Could not connect to the AI server."
-            );
+}
 
-          }
+}else if(
+typeof data.result === "string"
+){
 
-        }
+answer = data.result;
 
-      }
+}
 
-      let data = null;
 
-      try {
+if(!answer){
 
-        data =
-          await response.json();
+answer =
+"The AI responded, but no readable answer was returned.";
+}
 
-      } catch {
 
-        throw new Error(
-          "The AI server returned an invalid response."
-        );
+if(data.chatId){
 
-      }
+currentChatId =
+data.chatId;
 
-      if (!response.ok) {
+localStorage.setItem(
+CURRENT_CHAT_KEY,
+currentChatId
+);
 
-        throw new Error(
-          data?.error ||
-          data?.message ||
-          "The server request failed."
-        );
+}
 
-      }
 
-      return data;
+addMessage(
+"ai",
+answer,
+Array.isArray(data.sources)
+? data.sources
+: null
+);
 
-    }
+await loadChatList();
 
+}catch(error){
 
-    /* =====================================================
-       SCROLL TO BOTTOM
-    ===================================================== */
+console.error(
+"My AI error:",
+error
+);
 
-    function scrollToBottom() {
+if(thinking?._thinkingInterval){
+clearInterval(
+thinking._thinkingInterval
+);
+}
 
-      requestAnimationFrame(
-        function() {
+if(thinking){
+thinking.remove();
+}
 
-          window.scrollTo({
-            top:
-              document.documentElement
-                .scrollHeight,
-            behavior: "smooth"
-          });
+addMessage(
+"ai",
+"Sorry, something went wrong.\n\n" +
+(error?.message || "Please try again.")
+);
 
-        }
-      );
+}finally{
 
-    }
+sendBtn.disabled = false;
+promptInput.focus();
 
+}
 
-    /* =====================================================
-       ADD MESSAGE
-    ===================================================== */
+}
 
-    function addMessage(
-      type,
-      text,
-      sources = null
-    ) {
 
-      const message =
-        document.createElement(
-          "div"
-        );
+/* =========================================================
+   CHAT LIST
+========================================================= */
 
-      message.className =
-        "message " + type;
+async function loadChatList(){
 
-      const bubble =
-        document.createElement(
-          "div"
-        );
+try{
 
-      bubble.className =
-        "bubble";
+const data =
+await backendRequest(
+"/api/chats",
+{
+method:"GET"
+}
+);
 
-      bubble.textContent =
-        text || "";
+renderChatList(
+Array.isArray(data?.chats)
+? data.chats
+: []
+);
 
-      message.appendChild(
-        bubble
-      );
+}catch(error){
 
-      if (
-        type === "ai" &&
-        Array.isArray(sources) &&
-        sources.length
-      ) {
+console.error(
+"Could not load chats:",
+error
+);
 
-        const sourceBox =
-          document.createElement(
-            "div"
-          );
+renderChatList([]);
 
-        sourceBox.className =
-          "sources";
+}
+}
 
-        const title =
-          document.createElement(
-            "div"
-          );
 
-        title.className =
-          "sources-title";
+function renderChatList(chats){
 
-        title.textContent =
-          "Sources used";
+chatList.innerHTML = "";
 
-        sourceBox.appendChild(
-          title
-        );
+if(!Array.isArray(chats) || !chats.length){
 
-        sources.forEach(
-          function(source, index) {
+const empty =
+document.createElement("div");
 
-            if (!source?.title) {
-              return;
-            }
+empty.className = "empty-chats";
+empty.textContent = "No saved chats yet.";
 
-            const item =
-              document.createElement(
-                "div"
-              );
+chatList.appendChild(empty);
 
-            item.className =
-              "source-item";
+return;
+}
 
-            const label =
-              document.createElement(
-                "span"
-              );
 
-            label.textContent =
-              "[" +
-              (index + 1) +
-              "] " +
-              source.title;
+chats.forEach(item=>{
 
-            item.appendChild(
-              label
-            );
+const row =
+document.createElement("div");
 
-            if (source.url) {
+row.className = "chat-row";
 
-              item.appendChild(
-                document.createTextNode(
-                  " — "
-                )
-              );
 
-              const link =
-                document.createElement(
-                  "a"
-                );
+const open =
+document.createElement("button");
 
-              link.href =
-                source.url;
+open.className = "chat-open";
+open.type = "button";
+open.textContent =
+item.title || "Untitled chat";
 
-              link.target =
-                "_blank";
+open.title =
+item.title || "Untitled chat";
 
-              link.rel =
-                "noopener noreferrer";
+open.addEventListener(
+"click",
+()=>loadChat(item.id)
+);
 
-              link.textContent =
-                "Open source";
 
-              item.appendChild(
-                link
-              );
+const del =
+document.createElement("button");
 
-            }
+del.className = "chat-delete";
+del.type = "button";
+del.textContent = "×";
+del.setAttribute(
+"aria-label",
+"Delete chat"
+);
 
-            sourceBox.appendChild(
-              item
-            );
+del.addEventListener(
+"click",
+event=>{
 
-          }
-        );
+event.stopPropagation();
 
-        bubble.appendChild(
-          sourceBox
-        );
+deleteChat(item.id);
 
-      }
+}
+);
 
-      chat.appendChild(
-        message
-      );
 
-      scrollToBottom();
+row.appendChild(open);
+row.appendChild(del);
 
-      return bubble;
+chatList.appendChild(row);
 
-    }
+});
 
+}
 
-    /* =====================================================
-       THINKING MESSAGE
-    ===================================================== */
 
-    function createThinking() {
+/* =========================================================
+   LOAD CHAT
+========================================================= */
 
-      const message =
-        document.createElement(
-          "div"
-        );
+async function loadChat(chatId){
 
-      message.className =
-        "message ai";
+if(!chatId) return;
 
-      const bubble =
-        document.createElement(
-          "div"
-        );
+try{
 
-      bubble.className =
-        "bubble thinking";
+const data =
+await backendRequest(
+"/api/chats/" +
+encodeURIComponent(chatId),
+{
+method:"GET"
+}
+);
 
-      bubble.innerHTML = `
-        <div class="thinking-line">
-          <span class="thinking-label">
-            Thinking
-          </span>
+if(!data?.success || !data.chat){
 
-          <span class="dots">
-            <span></span>
-            <span></span>
-            <span></span>
-          </span>
-        </div>
+throw new Error(
+data?.error ||
+"Chat could not be loaded."
+);
 
-        <div
-          class="thinking-status"
-        >
-          Understanding your request...
-        </div>
-      `;
+}
 
-      message.appendChild(
-        bubble
-      );
+currentChatId =
+data.chat.id;
 
-      chat.appendChild(
-        message
-      );
+localStorage.setItem(
+CURRENT_CHAT_KEY,
+currentChatId
+);
 
-      scrollToBottom();
+renderSavedChat(data.chat);
 
-      const status =
-        bubble.querySelector(
-          ".thinking-status"
-        );
+closeDrawer();
 
-      let step = 0;
+}catch(error){
 
-      const statuses = [
-        "Understanding your request...",
-        "Working on it...",
-        "Checking the best approach...",
-        "Preparing your answer..."
-      ];
+console.error(
+"Load chat error:",
+error
+);
 
-      const interval =
-        setInterval(
-          function() {
+addMessage(
+"ai",
+"I couldn't open that conversation."
+);
 
-            step++;
+}
+}
 
-            if (status) {
 
-              status.textContent =
-                statuses[
-                  step %
-                  statuses.length
-                ];
+function renderSavedChat(savedChat){
 
-            }
+chat.innerHTML = "";
+welcome.style.display = "none";
 
-          },
-          1600
-        );
+if(
+!savedChat ||
+!Array.isArray(savedChat.messages)
+){
 
-      message._thinkingInterval =
-        interval;
+welcome.style.display = "";
+return;
+}
 
-      return message;
 
-    }
+savedChat.messages.forEach(message=>{
 
+if(message.role === "user"){
 
-    /* =====================================================
-       SEND MESSAGE
-    ===================================================== */
+addMessage(
+"user",
+message.content
+);
 
-    async function sendMessage() {
+}else if(message.role === "assistant"){
 
-      const prompt =
-        promptInput.value.trim();
+addMessage(
+"ai",
+message.content,
+message.sources || null
+);
 
-      if (!prompt) {
-        return;
-      }
+}
 
-      /*
-       * Clear the input immediately after
-       * accepting the message.
-       */
+});
 
-      promptInput.value = "";
+scrollToBottom();
+}
 
-      promptInput.style.height =
-        "auto";
 
-      /*
-       * Prevent duplicate submissions.
-       */
+async function restoreCurrentChat(){
 
-      if (sendBtn.disabled) {
-        return;
-      }
+if(!currentChatId){
 
-      sendBtn.disabled = true;
+chat.innerHTML = "";
+welcome.style.display = "";
+return;
 
-      /*
-       * Make sure the user is authenticated.
-       */
+}
 
-      let valid = false;
+try{
 
-      try {
+await loadChat(currentChatId);
 
-        valid =
-          await ensureValidSession();
+}catch{
 
-      } catch (error) {
+currentChatId = null;
 
-        console.error(
-          "Session validation error:",
-          error
-        );
+localStorage.removeItem(
+CURRENT_CHAT_KEY
+);
 
-        valid = false;
+chat.innerHTML = "";
+welcome.style.display = "";
 
-      }
+}
 
-      if (!valid) {
+}
 
-        sendBtn.disabled = false;
 
-        logout();
+/* =========================================================
+   DELETE CHAT
+========================================================= */
 
-        setAuthMessage(
-          "Please sign in again.",
-          "error"
-        );
+async function deleteChat(chatId){
 
-        return;
+if(!chatId) return;
 
-      }
+if(
+!window.confirm(
+"Delete this conversation?"
+)
+){
 
-      welcome.style.display =
-        "none";
+return;
+}
 
-      addMessage(
-        "user",
-        prompt
-      );
+try{
 
-      const thinking =
-        createThinking();
+const data =
+await backendRequest(
+"/api/chats/" +
+encodeURIComponent(chatId),
+{
+method:"DELETE"
+}
+);
 
-      try {
+if(!data?.success){
 
-        const data =
-          await backendRequest(
-            "/api/ask",
-            {
-              method: "POST",
+throw new Error(
+data?.error ||
+"Could not delete chat."
+);
 
-              body: JSON.stringify({
-                prompt:
-                  prompt,
+}
 
-                chatId:
-                  currentChatId
-              })
-            }
-          );
 
-        if (
-          thinking &&
-          thinking._thinkingInterval
-        ) {
+if(currentChatId === chatId){
 
-          clearInterval(
-            thinking._thinkingInterval
-          );
+currentChatId = null;
 
-        }
+localStorage.removeItem(
+CURRENT_CHAT_KEY
+);
 
-        if (thinking) {
-          thinking.remove();
-        }
+chat.innerHTML = "";
+welcome.style.display = "";
 
-        if (
-          !data ||
-          !data.success
-        ) {
+}
 
-          throw new Error(
-            data?.error ||
-            "Something went wrong."
-          );
+await loadChatList();
 
-        }
+}catch(error){
 
-        let answer = "";
+console.error(
+"Delete chat error:",
+error
+);
 
-        if (
-          data.result &&
-          typeof data.result ===
-          "object"
-        ) {
+alert(
+error?.message ||
+"Could not delete this chat."
+);
 
-          if (
-            typeof data.result.response ===
-            "string"
-          ) {
+}
+}
 
-            answer =
-              data.result.response;
 
-          } else if (
-            typeof data.result.result ===
-            "string"
-          ) {
+/* =========================================================
+   NEW CHAT
+========================================================= */
 
-            answer =
-              data.result.result;
+async function newChat(){
 
-          } else {
+try{
 
-            answer =
-              JSON.stringify(
-                data.result,
-                null,
-                2
-              );
+const data =
+await backendRequest(
+"/api/chats",
+{
+method:"POST",
+body:JSON.stringify({
+title:"New Chat"
+})
+}
+);
 
-          }
+if(!data?.success || !data.chat){
 
-        } else if (
-          typeof data.result ===
-          "string"
-        ) {
+throw new Error(
+data?.error ||
+"Could not create a new chat."
+);
 
-          answer =
-            data.result;
+}
 
-        }
+currentChatId =
+data.chat.id;
 
-        if (!answer) {
+localStorage.setItem(
+CURRENT_CHAT_KEY,
+currentChatId
+);
 
-          answer =
-            "The AI responded, but no readable answer was returned.";
+chat.innerHTML = "";
+welcome.style.display = "";
 
-        }
+closeDrawer();
+closeAccountMenu();
 
-        if (data.chatId) {
+promptInput.focus();
 
-          currentChatId =
-            data.chatId;
+await loadChatList();
 
-          localStorage.setItem(
-            CURRENT_CHAT_KEY,
-            currentChatId
-          );
+}catch(error){
 
-        }
+console.error(
+"New chat error:",
+error
+);
 
-        addMessage(
-          "ai",
-          answer,
-          data.sources || null
-        );
+alert(
+error?.message ||
+"Could not create a new chat."
+);
 
-        await loadChatList();
+}
+}
 
-      } catch (error) {
 
-        console.error(
-          "My AI error:",
-          error
-        );
+/* =========================================================
+   DRAWER
+========================================================= */
 
-        if (
-          thinking &&
-          thinking._thinkingInterval
-        ) {
+function openDrawer(){
 
-          clearInterval(
-            thinking._thinkingInterval
-          );
+drawer.classList.add("open");
+drawerOverlay.classList.remove("hidden");
 
-        }
+loadChatList();
+}
 
-        if (thinking) {
-          thinking.remove();
-        }
+function closeDrawer(){
 
-        addMessage(
-          "ai",
-          "Sorry, something went wrong.\n\n" +
-          (
-            error?.message ||
-            "Please try again."
-          )
-        );
+drawer.classList.remove("open");
+drawerOverlay.classList.add("hidden");
 
-      } finally {
+}
 
-        sendBtn.disabled =
-          false;
+logoButton.addEventListener(
+"click",
+openDrawer
+);
 
-        promptInput.focus();
+drawerClose.addEventListener(
+"click",
+closeDrawer
+);
 
-      }
+drawerOverlay.addEventListener(
+"click",
+closeDrawer
+);
 
-    }
+newChatBtn.addEventListener(
+"click",
+newChat
+);
 
 
-    /* =====================================================
-       RENDER SAVED CHAT
-    ===================================================== */
+/* =========================================================
+   ACCOUNT
+========================================================= */
 
-    function renderSavedChat(
-      savedChat
-    ) {
+function openAccountMenu(){
+accountMenu.classList.remove("hidden");
+}
 
-      chat.innerHTML = "";
+function closeAccountMenu(){
+accountMenu.classList.add("hidden");
+}
 
-      welcome.style.display =
-        "none";
 
-      if (
-        !savedChat ||
-        !Array.isArray(
-          savedChat.messages
-        )
-      ) {
+accountBtn.addEventListener(
+"click",
+event=>{
 
-        welcome.style.display =
-          "";
+event.stopPropagation();
 
-        return;
+if(
+accountMenu.classList.contains("hidden")
+){
 
-      }
+openAccountMenu();
 
-      savedChat.messages.forEach(
-        function(message) {
+}else{
 
-          if (
-            message.role ===
-            "user"
-          ) {
+closeAccountMenu();
 
-            addMessage(
-              "user",
-              message.content
-            );
+}
 
-          } else if (
-            message.role ===
-            "assistant"
-          ) {
+}
+);
 
-            addMessage(
-              "ai",
-              message.content,
-              message.sources
-            );
 
-          }
+accountMenu.addEventListener(
+"click",
+event=>{
+event.stopPropagation();
+}
+);
 
-        }
-      );
 
-      scrollToBottom();
+document.addEventListener(
+"click",
+()=>{
+closeAccountMenu();
+}
+);
 
-    }
 
+logoutBtn.addEventListener(
+"click",
+logout
+);
 
-    /* =====================================================
-       LOAD SAVED CHAT LIST
-    ===================================================== */
 
-    async function loadChatList() {
+newChatMenuBtn.addEventListener(
+"click",
+newChat
+);
 
-      try {
 
-        const data =
-          await backendRequest(
-            "/api/chats",
-            {
-              method: "GET"
-            }
-          );
+/* =========================================================
+   INPUT
+========================================================= */
 
-        renderChatList(
-          data?.chats || []
-        );
+sendBtn.addEventListener(
+"click",
+sendMessage
+);
 
-      } catch (error) {
 
-        console.error(
-          "Could not load chats:",
-          error
-        );
+promptInput.addEventListener(
+"keydown",
+event=>{
 
-        renderChatList([]);
+if(
+event.key === "Enter" &&
+!event.shiftKey
+){
 
-      }
+event.preventDefault();
+sendMessage();
 
-    }
+}
 
+}
+);
 
-    /* =====================================================
-       RENDER CHAT LIST
-    ===================================================== */
 
-    function renderChatList(
-      chats
-    ) {
+promptInput.addEventListener(
+"input",
+function(){
 
-      chatList.innerHTML = "";
+this.style.height = "auto";
 
-      if (
-        !Array.isArray(chats) ||
-        chats.length === 0
-      ) {
+this.style.height =
+Math.min(
+this.scrollHeight,
+140
+) + "px";
 
-        const empty =
-          document.createElement(
-            "div"
-          );
+}
+);
 
-        empty.className =
-          "empty-chats";
 
-        empty.textContent =
-          "No saved chats yet.";
+/* =========================================================
+   START
+========================================================= */
 
-        chatList.appendChild(
-          empty
-        );
+async function initialize(){
 
-        return;
+updateAuthMode();
 
-      }
+const valid =
+await ensureValidSession();
 
-      chats.forEach(
-        function(item) {
+if(!valid){
 
-          const row =
-            document.createElement(
-              "div"
-            );
+authScreen.classList.remove("hidden");
+app.classList.add("hidden");
 
-          row.className =
-            "chat-row";
+return;
+}
 
-          const open =
-            document.createElement(
-              "button"
-            );
+showApp();
 
-          open.className =
-            "chat-open";
+await loadChatList();
+await restoreCurrentChat();
 
-          open.type =
-            "button";
+}
 
-          open.textContent =
-            item.title ||
-            "Untitled chat";
+initialize();
 
-          open.title =
-            item.title ||
-            "Untitled chat";
-
-          open.addEventListener(
-            "click",
-            function() {
-
-              loadChat(
-                item.id
-              );
-
-            }
-          );
-
-          const del =
-            document.createElement(
-              "button"
-            );
-
-          del.className =
-            "chat-delete";
-
-          del.type =
-            "button";
-
-          del.textContent =
-            "×";
-
-          del.setAttribute(
-            "aria-label",
-            "Delete chat"
-          );
-
-          del.addEventListener(
-            "click",
-            function(event) {
-
-              event.stopPropagation();
-
-              deleteChat(
-                item.id
-              );
-
-            }
-          );
-
-          row.appendChild(
-            open
-          );
-
-          row.appendChild(
-            del
-          );
-
-          chatList.appendChild(
-            row
-          );
-
-        }
-      );
-
-    }
-
-
-    /* =====================================================
-       LOAD ONE CHAT
-    ===================================================== */
-
-    async function loadChat(
-      chatId
-    ) {
-
-      if (!chatId) {
-        return;
-      }
-
-      try {
-
-        const data =
-          await backendRequest(
-            "/api/chats/" +
-            encodeURIComponent(
-              chatId
-            ),
-            {
-              method: "GET"
-            }
-          );
-
-        if (
-          !data?.success ||
-          !data.chat
-        ) {
-
-          throw new Error(
-            data?.error ||
-            "Chat could not be loaded."
-          );
-
-        }
-
-        currentChatId =
-          data.chat.id;
-
-        localStorage.setItem(
-          CURRENT_CHAT_KEY,
-          currentChatId
-        );
-
-        renderSavedChat(
-          data.chat
-        );
-
-        closeDrawer();
-
-      } catch (error) {
-
-        console.error(
-          "Load chat error:",
-          error
-        );
-
-        addMessage(
-          "ai",
-          "I couldn't open that conversation."
-        );
-
-      }
-
-    }
-
-
-    /* =====================================================
-       RESTORE CURRENT CHAT
-    ===================================================== */
-
-    async function restoreCurrentChat() {
-
-      if (!currentChatId) {
-
-        chat.innerHTML = "";
-
-        welcome.style.display =
-          "";
-
-        return;
-
-      }
-
-      try {
-
-        await loadChat(
-          currentChatId
-        );
-
-      } catch {
-
-        currentChatId = null;
-
-        localStorage.removeItem(
-          CURRENT_CHAT_KEY
-        );
-
-        chat.innerHTML = "";
-
-        welcome.style.display =
-          "";
-
-      }
-
-    }
-
-
-    /* =====================================================
-       DELETE CHAT
-    ===================================================== */
-
-    async function deleteChat(
-      chatId
-    ) {
-
-      if (!chatId) {
-        return;
-      }
-
-      const confirmed =
-        window.confirm(
-          "Delete this conversation?"
-        );
-
-      if (!confirmed) {
-        return;
-      }
-
-      try {
-
-        const data =
-          await backendRequest(
-            "/api/chats/" +
-            encodeURIComponent(
-              chatId
-            ),
-            {
-              method: "DELETE"
-            }
-          );
-
-        if (!data?.success) {
-
-          throw new Error(
-            data?.error ||
-            "Could not delete chat."
-          );
-
-        }
-
-        if (
-          currentChatId ===
-          chatId
-        ) {
-
-          currentChatId = null;
-
-          localStorage.removeItem(
-            CURRENT_CHAT_KEY
-          );
-
-          chat.innerHTML = "";
-
-          welcome.style.display =
-            "";
-
-        }
-
-        await loadChatList();
-
-      } catch (error) {
-
-        console.error(
-          "Delete chat error:",
-          error
-        );
-
-        alert(
-          error?.message ||
-          "Could not delete this chat."
-        );
-
-      }
-
-    }
-
-
-    /* =====================================================
-       NEW CHAT
-    ===================================================== */
-
-    async function newChat() {
-
-      try {
-
-        const data =
-          await backendRequest(
-            "/api/chats",
-            {
-              method: "POST",
-
-              body: JSON.stringify({
-                title:
-                  "New Chat"
-              })
-            }
-          );
-
-        if (
-          !data?.success ||
-          !data.chat
-        ) {
-
-          throw new Error(
-            data?.error ||
-            "Could not create a new chat."
-          );
-
-        }
-
-        currentChatId =
-          data.chat.id;
-
-        localStorage.setItem(
-          CURRENT_CHAT_KEY,
-          currentChatId
-        );
-
-        chat.innerHTML = "";
-
-        welcome.style.display =
-          "";
-
-        closeDrawer();
-        closeAccountMenu();
-
-        promptInput.focus();
-
-        await loadChatList();
-
-      } catch (error) {
-
-        console.error(
-          "New chat error:",
-          error
-        );
-
-        currentChatId = null;
-
-        localStorage.removeItem(
-          CURRENT_CHAT_KEY
-        );
-
-        chat.innerHTML = "";
-
-        welcome.style.display =
-          "";
-
-        closeDrawer();
-
-      }
-
-    }
-
-
-    /* =====================================================
-       DRAWER
-    ===================================================== */
-
-    function openDrawer() {
-
-      drawer.classList.add(
-        "open"
-      );
-
-      drawerOverlay.classList.remove(
-        "hidden"
-      );
-
-      loadChatList();
-
-    }
-
-
-    function closeDrawer() {
-
-      drawer.classList.remove(
-        "open"
-      );
-
-      drawerOverlay.classList.add(
-        "hidden"
-      );
-
-    }
-
-
-    logoButton.addEventListener(
-      "click",
-      openDrawer
-    );
-
-    drawerClose.addEventListener(
-      "click",
-      closeDrawer
-    );
-
-    drawerOverlay.addEventListener(
-      "click",
-      closeDrawer
-    );
-
-    newChatBtn.addEventListener(
-      "click",
-      newChat
-    );
-
-
-    /* =====================================================
-       ACCOUNT MENU
-    ===================================================== */
-
-    function openAccountMenu() {
-
-      accountMenu.classList.remove(
-        "hidden"
-      );
-
-    }
-
-
-    function closeAccountMenu() {
-
-      accountMenu.classList.add(
-        "hidden"
-      );
-
-    }
-
-
-    accountBtn.addEventListener(
-      "click",
-      function(event) {
-
-        event.stopPropagation();
-
-        if (
-          accountMenu.classList.contains(
-            "hidden"
-          )
-        ) {
-
-          openAccountMenu();
-
-        } else {
-
-          closeAccountMenu();
-
-        }
-
-      }
-    );
-
-
-    accountMenu.addEventListener(
-      "click",
-      function(event) {
-
-        event.stopPropagation();
-
-      }
-    );
-
-
-    document.addEventListener(
-      "click",
-      function() {
-
-        closeAccountMenu();
-
-      }
-    );
-
-
-    logoutBtn.addEventListener(
-      "click",
-      logout
-    );
-
-
-    newChatMenuBtn.addEventListener(
-      "click",
-      newChat
-    );
-
-
-    /* =====================================================
-       SEND BUTTON
-    ===================================================== */
-
-    sendBtn.addEventListener(
-      "click",
-      sendMessage
-    );
-
-
-    /* =====================================================
-       ENTER TO SEND
-       SHIFT + ENTER = NEW LINE
-    ===================================================== */
-
-    promptInput.addEventListener(
-      "keydown",
-      function(event) {
-
-        if (
-          event.key === "Enter" &&
-          !event.shiftKey
-        ) {
-
-          event.preventDefault();
-
-          sendMessage();
-
-        }
-
-      }
-    );
-
-
-    /* =====================================================
-       AUTO RESIZE
-    ===================================================== */
-
-    promptInput.addEventListener(
-      "input",
-      function() {
-
-        this.style.height =
-          "auto";
-
-        this.style.height =
-          Math.min(
-            this.scrollHeight,
-            140
-          ) + "px";
-
-      }
-    );
-
-
-    /* =====================================================
-       INITIALIZATION
-    ===================================================== */
-
-    async function initialize() {
-
-      updateAuthMode();
-
-      const valid =
-        await ensureValidSession();
-
-      if (!valid) {
-
-        authScreen.classList.remove(
-          "hidden"
-        );
-
-        app.classList.add(
-          "hidden"
-        );
-
-        return;
-
-      }
-
-      showApp();
-
-      await loadChatList();
-
-      await restoreCurrentChat();
-
-    }
-
-
-    /* =====================================================
-       START
-    ===================================================== */
-
-    initialize();
-
-  </script>
+</script>
 
 </body>
 </html>
